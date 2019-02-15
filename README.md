@@ -33,11 +33,12 @@ pip install --no-cache-dir -I pillow
 
 ### 服务器基本环境
 
-操作系统：CentOS6.4 + 
-Web服务器：Nginx 1.6.2
-CGI: uwsgi （在系统环境和virtualenv环境都安装）
-应用环境：Python 2.7.10 + django 1.7
-数据库：Mysql-server
+操作系统：CentOS6.4 +   
+Web服务器：Nginx 1.6.2  
+CGI: uwsgi （在系统环境和virtualenv环境都安装）  
+应用环境：Python 2.7.10 + django 1.7  
+数据库：Mysql-server  
+
 参考步骤：
 ```
 #yum install mysql-server
@@ -45,25 +46,33 @@ CGI: uwsgi （在系统环境和virtualenv环境都安装）
 #chkconfig mysqld on
 ```
 
-特别注意：pip –V所显示的版本信息中，所使用的python必须为Python2.7 。
+特别注意：pip –V所显示的版本信息中，所使用的python必须为Python2.7 。  
 
-退出root权限，选定一个目录放置Python虚拟环境
-$ virtualenv --python=/usr/local/bin/python2.7 pmpenv  （指定使用python2.7）
+退出root权限，选定一个目录放置Python虚拟环境  
+```
+$ virtualenv --python=/usr/local/bin/python2.7 pmpenv  （指定使用python2.7）  
 $cd pmpenv
 $source ./bin/activate
-此时即进入虚拟环境，此后需要的组件均安装在虚拟环境内（退出虚拟环境指令为 deactivate）。
+```
+此时即进入虚拟环境，此后需要的组件均安装在虚拟环境内（退出虚拟环境指令为 deactivate）。  
+```
 (pmpenv)$pip install uwsgi
 (pmpenv)$pip install django
 (pmpenv)$pip install Mysql-python
+```
 假设代码目录结构为/data/pmpenv/pmp/pmp ,第一个pmp是django站点的主目录，第二个pmp放置主要配置文件。
 
 ### 服务器参数配置
 
 性能参数：
 在/etc/sysctl.conf中添加如下一行：
+```
 net.core.somaxconn = 2048
+```
 然后在终端中执行
+```
 sysctl –p
+```
 uwsgi.ini中的listen参数已经设为1024 （不能超过net.core.somaxconn变量值）。
 此项如果没有修改，则uwsgi服务起不来。
 
