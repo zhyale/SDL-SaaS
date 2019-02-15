@@ -1,0 +1,610 @@
+{% extends 'base.html' %}
+{% block title %}SDL SaaS{% endblock %}
+{% block head_seo %}
+    <meta name="keywords" content="安全内控,在线项目管理平台,安全开发流程,安全开发周期,SDL,Security Development Lifecycle,安全的项目管理,IT-CMM,安全生命周期"/>
+    <meta name="description"
+          content="这是一个以强化安全内控为特色的在线项目管理平台（SDL SaaS），它源于安全开发周期方法论和国际/国内巨头公司的项目管理实践，从源头开始进行安全控制，通过规范的项目管理过程和KCP任务的引入，确保开发设计及部署过程中遵从安全标准与规范，保障所交付产品在全生命周期过程中的安全性。"/>
+{% endblock %}
+
+{% block body %}
+    <div class="row" style="padding-top: 10px;" data-ng-app="ngIndex" data-ng-controller="ngIndexController">
+        <div class="col-sm-9 hidden-xs">
+            <div id="myCarousel" class="row carousel slide" data-ride="carousel" data-interval="2500">
+               <ol class="carousel-indicators">
+                   {% for page in carousel_pages %}
+                       <li data-target="#myCarousel" data-slide-to="{{ forloop.counter0 }}" {% ifequal forloop.counter0 0 %}class="active" {% endifequal %}></li>
+                   {% endfor %}
+               </ol>
+               <div class="carousel-inner" style="height: 300px;" align="center">
+                   {% for page in carousel_pages %}
+                       <div class="item{% ifequal forloop.counter0 0 %} active{% endifequal %}" style="height: 100%">
+
+                           <a href="/content/{{ page.pseudo_name }}" title="{{ page.title }}">
+                                <img src="/media/{{ page.banner_image }}" style="width: 100%;height: 300px;" alt="{{ page.title }}">
+                           </a>
+
+                       </div>
+                   {% endfor %}
+               </div>
+               <a class="carousel-control left" href="#myCarousel" role="button" data-slide="prev">
+                   <span class="glyphicon glyphicon-chevron-left"></span>
+               </a>
+               <a class="carousel-control right" href="#myCarousel" role="button" data-slide="next">
+                   <span class="glyphicon glyphicon-chevron-right"></span>
+               </a>
+            </div>
+            <div>
+                <br/>
+            </div>
+            <div class="row">
+                <div class="panel panel-default">
+                        <div class="panel-heading" style="background-color: #F5F5F5; ">
+                            为什么我们的网站总是被入侵？为什么我们开发的APP经常被告知存在高危漏洞？
+                        </div>
+
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-minus-sign" style="color: #ff3333;">&nbsp;</span>
+                                做项目没有成熟的流程控制，没有方案评审或同行评审，没有人对交付的产品质量把关...
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-minus-sign" style="color: #ff3333;">&nbsp;</span>
+                                做方案设计或开发，没有标准/规范，或没有基于标准/规范进行符合性检查，仅依靠个人经验...
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-minus-sign" style="color: #ff3333;">&nbsp;</span>
+                                产品没有经过安全测试就发布，带着漏洞上线，且漏洞很容易被黑客发现和利用...
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-minus-sign" style="color: #ff3333;">&nbsp;</span>
+                                上线后，存在使用弱口令、空口令、通用口令的情况，以及在应用中配置使用root超级口令的现象...
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-minus-sign" style="color: #ff3333;">&nbsp;</span>
+                                数据库向互联网开放、备份不可用、缺乏基本的防护...
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-minus-sign" style="color: #ff3333;">&nbsp;</span>
+                                发现问题后，无法从根本上解决问题，同样的问题还是会频繁出现...
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-minus-sign" style="color: #ff3333;">&nbsp;</span>
+                                寄希望于防火墙设备或软件、入侵防御系统（IPS）、Web应用防火墙（WAF），或第三方防护产品，却经常被绕过...
+                            </li>
+                        </ul>
+
+                    </div>
+                <div class="row">
+                <div class="col-sm-9">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="">
+                            我们的解决方案&nbsp; - &nbsp;将安全融入项目管理过程!
+                        </div>
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                提供在线SDL服务（SDL SaaS服务）, 安全从源头开始, 贯穿产品生命周期始终；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                按产品版本进行立项，执行在线的项目管理流程；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                自动为项目各阶段添加对应的关键控制任务（安全KCP任务），未完成则无法进入下一阶段；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                完善的自检Checklist机制，关键任务自动展示自检项，不遗漏重要的操作；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                用流程化的方式自动提醒在当前阶段需要做什么事情；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                上线后，提供<a href="/itsm/">在线ITSM</a>服务（IT服务管理），提高运维管理效率；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                让自身强大起来，不依赖外部安全解决方案，从根本上规避高危安全风险！
+                            </li>
+                        </ul>
+                    </div>
+                    <div style="background-color: #EDF3FE;border-radius: 3px;margin-bottom: 5px;">
+                        <div class="row">
+                            <div class="col-sm-4" style="border-right: 2px solid #FFFFFF;">
+                                <div class="frontphase">
+                                开发测试阶段
+                                </div>
+                                <ul>
+                                    <li class="frontkcp">安全设计自检</li>
+                                    <li class="frontkcp">安全开发自检</li>
+                                    <li class="frontkcp">安全测试自检</li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-4" style="border-right: 2px solid #FFFFFF;">
+                                <div  class="frontphase">
+                                产品发布阶段
+                                </div>
+                                <ul>
+                                    <li class="frontkcp">安全部署自检</li>
+                                    <li class="frontkcp">验收自检</li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-4">
+                                <div  class="frontphase">
+                                运维阶段
+                                </div>
+                                <ul>
+                                    <li class="frontkcp"><a href="/itsm/">IT服务管理</a></li>
+                                    <li class="frontkcp">安全事件响应</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if not current_user %}
+                        <div class="text-center">
+                            <a href="/signup"><strong>&gt;&gt; 免费注册，开启安全之旅 &lt;&lt;</strong></a>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-sm-3">
+                    <div id="svg_agile"></div>
+                    <p class="text-center">精简安全内控项目管理流程</p>
+                </div>
+                </div>
+            </div>
+            <div class="row" style="border-top: 1px solid #d9edf7;padding-top: 15px;">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="background-color: #F5F5F5;">
+                            如果对安全性有更高的要求？
+                        </div>
+
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                提供完整的应用开发项目管理流程，含立项规划、需求分析、方案设计、开发与测试、验收审核等；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                提供完整的外购软件包实施项目管理流程，含立项规划、需求分析、选型、方案设计、验证测试、验收审核等；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                经过Sponsor授权同意后，才动用组织资源（人力/物力/预算等）来达成项目目标；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                将安全需求纳入需求范围（来解决潜在的安全风险），需求经过业务代表确认，确保项目组所理解的需求跟业务保持一致；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                制定并完善<a href="/specifications" target="_blank">安全技术标准与规范</a>（含设计规范、部署规范）；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                系统的安全设计经过技术评审/同行评审；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                通过代码审计（白盒测试，直接对代码进行扫描）；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                通过漏洞扫描（黑盒测试，直接对服务进行扫描）；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                通过基于安全测试用例的测试（黑盒测试）；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                基于服务器安全配置规范进行安全配置；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                适当的防火墙策略（默认关闭，按需开通），基础安全防御措施（WAF等）覆盖到本产品；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                备份协议、备份与恢复演练、服务监控、修改回收口令；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                对IT环境所做的增/删/改都同步更新到<a href="/itsm/" target="_blank">ITSM</a>中的配置管理库，即IT环境的基础数据库（CMDB配置管理库）；
+                            </li>
+                             <li class="list-group-item">
+                                <span class="glyphicon glyphicon-info-sign" style="color: #11dd99;">&nbsp;</span>
+                                实施安全运营，执行事件管理（含安全事件应急响应）、变更管理、问题管理等。
+                            </li>
+                        </ul>
+
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="background-color: #F5F5F5;">
+                            平台特色
+                        </div>
+
+                        <ul class="list-group">
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                一站式安全生命周期管理解决方案（SDL SaaS），从源头开始保障产品的安全；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                在线项目管理与任务协作，融入安全设计、安全开发、安全测试、安全部署要求；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                <a href="/itsm/">在线IT服务管理</a>（ITSM SaaS），为产品上线后的安全运营提供基础保障；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                在线安全自检Checklist，比模板和附件效率更高；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                架起一座桥，让管理人员和技术人员更好的沟通；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                多行业支持：互联网行业、IT行业、传统行业等；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                多种项目类型支持：Web应用开发、软件包实施、手机APP、PC应用开发等；
+                            </li>
+                            <li class="list-group-item">
+                                <span class="glyphicon glyphicon-ok-sign" style="color: #33ff11;">&nbsp;</span>
+                                不同安全级别支持：精简的安全管控、严格的安全管控（流程遵从/交付质量）。
+                            </li>
+                        </ul>
+
+                    </div>
+                    {% if not current_user %}
+                        <div class="text-center">
+                            <a href="/signup"><strong>&gt;&gt; 免费注册，开启安全之旅 &lt;&lt;</strong></a>
+                            <br/><br/>
+                        </div>
+                    {% endif %}
+            </div>
+
+        </div>
+        <div class="col-sm-3">
+            {% if current_user %}
+                {% if handler_projects %}
+                    <h4>待我处理/审批的项目</h4>
+                    {% for project in handler_projects %}
+                        <div class="list-group-item projectblock">
+                            <div>
+                                <h5><a href="/projectlist/{{ project.id }}" target="_blank">{{ project.name }}</a></h5>
+                            </div>
+                            <div>
+                                <a href="/user/{{ project.manager.id }}" target="_blank">
+                                    <img src="{{ project.manager.display_avatar_link }}" style="width: 25px"
+                                         title="{{ project.manager.username }} {{ project.manager.email }}"/>
+                                </a>
+                                <a href="/user/{{ project.architect.id }}" target="_blank">
+                                    <img src="{{ project.architect.display_avatar_link }}" style="width: 25px"
+                                         title="{{ project.architect.username }} {{ project.architect.email }}"/>
+                                </a>
+                                <a href="/user/{{ project.dev_rep.id }}" target="_blank">
+                                    <img src="{{ project.dev_rep.display_avatar_link }}" style="width: 25px"
+                                         title="{{ project.dev_rep.username }} {{ project.dev_rep.email }}"/>
+                                </a>
+                                <a href="/user/{{ project.test_rep.id }}" target="_blank">
+                                    <img src="{{ project.test_rep.display_avatar_link }}" style="width: 25px"
+                                         title="{{ project.test_rep.username }} {{ project.test_rep.email }}"/>
+                                </a>
+                                <a href="/user/{{ project.op_rep.id }}" target="_blank">
+                                    <img src="{{ project.op_rep.display_avatar_link }}" style="width: 25px"
+                                         title="{{ project.op_rep.username }} {{ project.op_rep.email }}"/>
+                                </a>
+                                {% for member in project.members.all %}
+                                    <a href="/user/{{ member.id }}" target="_blank">
+                                        <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                             title="{{ member.username }} {{ member.email }}"/>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <br/>
+                {% endif %}
+
+                {% if handler_tasks %}
+                    <h4>待我处理的任务</h4>
+                    {% for task in handler_tasks %}
+                        <div class="list-group-item taskblock">
+                            <div>
+                                <h5><a href="/tasklist/{{ task.id }}">{{ task.name }}</a></h5>
+                            </div>
+                            <div>
+                                <a href="/user/{{ task.leader.id }}" target="_blank">
+                                    <img src="{{ task.leader.display_avatar_link }}" style="width: 25px"
+                                         title="{{ task.leader.username }} {{ task.leader.email }}"/>
+                                </a>
+                                <a href="/user/{{ task.reviewer.id }}" target="_blank">
+                                    <img src="{{ task.reviewer.display_avatar_link }}" style="width: 25px"
+                                         title="{{ task.reviewer.username }} {{ task.reviewer.email }}"/>
+                                </a>
+                            </div>
+                            <div>
+                                {% if task.project %}
+                                    <a href="/projectlist/{{ task.project.id }}" target="_blank">{{ task.project }}</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <br/>
+                {% endif %}
+            {% endif %}
+
+            <div id="qrcode" class="text-center">
+                <p>
+                    微信公众号"网络安全生命周期"<br/>
+                    网络安全体系建设实践分享~
+                </p>
+                <img src="/static/images/qrcode.jpg" title="微信公众号网络安全生命周期">
+                <p>
+                    <br/>
+                </p>
+            </div>
+
+            <div id="Pages" class="list-group">
+                <div>
+                    <h4>安全快讯</h4>
+                    <ul class="list-group">
+                        {% for page in pages %}
+                            <li class="list-group-item pageblock">
+                                <div>
+                                    <a href="/content/{{ page.pseudo_name }}" title="{{ page.title }}" target="_blank">
+                                        {{ page.title }}
+                                    </a>
+                                </div>
+                                <div>
+                                    [{{ page.time|date:"Y-m-d H:i:s" }}]
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="/static/js/jquery.cookie.js"></script>
+    {% if not current_user %}
+        <script>
+            var default_email = $.cookie("email");
+            if (default_email) {
+                document.getElementById("email").value = default_email;
+                document.getElementById("password").focus();
+            }
+            //else document.getElementById("email").focus();
+
+            function CheckEmail(email) {
+                if (email.indexOf("@") < 0) {
+                    document.getElementById("emailNote").innerText = "请输入有效的电子邮件地址！";
+                }
+                else document.getElementById("emailNote").innerText = "";
+            }
+
+            function FillDemoAccount() {
+                document.getElementById("email").value = "linghuchong@janusec.com";
+                document.getElementById("password").value = "Flzx3000c";
+            }
+        </script>
+    {% endif %}
+
+    <script type="text/javascript">
+        var app = angular.module("ngIndex", []);
+        app.controller("ngIndexController", function ($scope) {
+            // d3.select("#IndexTab").attr("class", "active");
+            $scope.agl_flowlist ={{ agl_flow_json|safe }};
+            // $scope.app_flowlist ={{ project_app_flow|safe }};
+
+            $scope.drawSVG = function (flowlist, div_id) {
+                var dataset = [];
+                angular.copy(flowlist, dataset);
+                dataset.pop()
+                var width = 450;
+                var height = flowlist.length * 150 - 70;
+                d3.select("#" + div_id).selectAll("svg").remove();
+                var svg = d3.select("#" + div_id).append("svg").attr("width", width).attr("height", height).attr("xmlns", "http://www.w3.org/2000/svg").attr("version", "1.1");
+                svg.append("defs")
+                        .append("marker").attr("id", "arrowEnd").attr("markerWidth", "13").attr("markerHeight", "13").attr("refX", 0).attr("refY", 2).attr("orient", "auto")
+                        .append("path").attr("d", "M0,0 L0,4 L6,2 L0,0").attr("style", "fill: #6a5acd;")
+                var leftX = 10;
+                var rectHeight = 150;
+                svg.selectAll(".stagetext")
+                        .data(flowlist)
+                        .enter()
+                        .append("text")
+                        .attr("class", "stagetext")
+                        .attr("x", leftX + 20)
+                        .attr("dy", function (d, i) {
+                            return i * rectHeight + 32;
+                        })
+                        .text(function (d, i) {
+                            return d.display;
+                        });
+                svg.selectAll("rect")
+                        .data(flowlist)
+                        .enter()
+                        .append("rect")
+                        .attr("x", leftX)
+                        .attr("y", function (d, i) {
+                            return i * rectHeight + 2;
+                        })
+                        .attr("rx", 20)
+                        .attr("ry", 20)
+                        .attr("width", 130)
+                        .attr("height", rectHeight - 100)
+                        .attr("opacity", "0.4")
+                        .attr("fill", "#f0ffff")
+                        .attr("stroke", "#6a5acd")
+                        .attr("stroke-width", 2)
+                        .on("mouseover", function (d, i) {
+                            d3.select(this).attr("fill", "yellow");
+                            var desc = "";
+                            if (d["status"]["IN_OPERATION"]) {
+                                desc = "项目结束";
+                            }
+                            else desc = d["status"]["IN_PROCESS"]["description"];
+                            svg.append("text").attr("class", "tempTip").attr("x", leftX - 10).attr("dy", i * rectHeight + 65).attr("width", "200").text(desc);
+                        })
+                        .on("mouseout", function (d, i) {
+                            d3.select(this).transition().attr("fill", "#f0ffff");
+                            d3.selectAll(".tempTip").remove();
+                        });
+                svg.selectAll(".approvetext")
+                        .data(dataset)
+                        .enter()
+                        .append("text")
+                        .attr("class", "approvetext")
+                        .attr("x", leftX + 50)
+                        .attr("dy", function (d, i) {
+                            return i * rectHeight + 107;
+                        })
+                        .attr("fill", "#4b0082")
+                        .text("审批");
+                svg.selectAll("polygon")
+                        .data(dataset)
+                        .enter()
+                        .append("polygon")
+                        .attr("points", function (d, i) {
+                            var leftPX = leftX + 15;
+                            var leftPY = (i * rectHeight + 102);
+                            coo = leftPX + "," + leftPY; //left
+                            coo += " " + (leftPX + 50) + "," + (leftPY - 20); //top
+                            coo += " " + (leftPX + 100) + "," + leftPY; //right
+                            coo += " " + (leftPX + 50) + "," + (leftPY + 20);
+                            return coo;
+                        })
+                        .attr("fill", "#f0ffff")
+                        .attr("opacity", "0.3")
+                        .attr("stroke", "#6a5acd")
+                        .attr("stroke-width", 2)
+                        .on("mouseover", function (d, i) {
+                            d3.select(this).attr("fill", "yellow");
+                            var desc = d["status"]["IN_APPROVAL"]["description"];
+                            svg.append("text").attr("class", "tempTip")
+                                    .attr("x", leftX + 90).attr("dy", i * rectHeight + 122)
+                                    .attr("width", "200")
+                                    .text(desc);
+                        })
+                        .on("mouseout", function (d, i) {
+                            d3.select(this)
+                                    .transition()
+                                    .attr("fill", "#f0ffff");
+                            d3.selectAll(".tempTip").remove();
+                        });
+                ;
+                // begin to APPROVE
+                svg.selectAll(".preline")
+                        .data(dataset)
+                        .enter()
+                        .append("line")
+                        .attr("class", "preline")
+                        .attr("x1", leftX + 65)
+                        .attr("y1", function (d, i) {
+                            return i * rectHeight + 52;
+                        })
+                        .attr("x2", leftX + 65)
+                        .attr("y2", function (d, i) {
+                            return i * rectHeight + 72;
+                        })
+                        .attr("stroke", "#6a5acd")
+                        .attr("stroke-width", 2)
+                        .attr("marker-end", "url(#arrowEnd)")
+                        .on("mouseover", function (d, i) {
+                            d3.select(this).transition().duration(500).attr("stroke-width", 4);
+                            var desc = d["status"]["IN_PROCESS"]["options"]["SUBMIT"];
+                            svg.append("text").attr("class", "tempTip")
+                                    .attr("x", leftX + 70).attr("dy", i * rectHeight + 72)
+                                    .attr("width", "200")
+                                    .text(desc);
+                        })
+                        .on("mouseout", function (d, i) {
+                            d3.select(this).transition().duration(500).attr("stroke-width", 2);
+                            d3.selectAll(".tempTip").remove();
+                        });
+                // APPROVE line
+                svg.selectAll(".postline")
+                        .data(dataset)
+                        .enter()
+                        .append("line")
+                        .attr("class", "postline")
+                        .attr("x1", leftX + 65)
+                        .attr("y1", function (d, i) {
+                            return i * rectHeight + 122;
+                        })
+                        .attr("x2", leftX + 65)
+                        .attr("y2", function (d, i) {
+                            return i * rectHeight + 142;
+                        })
+                        .attr("stroke", "#6a5acd")
+                        .attr("stroke-width", 2)
+                        .attr("marker-end", "url(#arrowEnd)")
+                        .on("mouseover", function (d, i) {
+                            d3.select(this).transition().duration(500).attr("stroke-width", 4);
+                            var desc = d["status"]["IN_APPROVAL"]["options"]["APPROVE"];
+                            svg.append("text").attr("class", "tempTip")
+                                    .attr("x", leftX + 70).attr("dy", i * rectHeight + 142)
+                                    .attr("width", "200")
+                                    .text(desc);
+                        })
+                        .on("mouseout", function (d, i) {
+                            d3.select(this).transition().duration(500).attr("stroke-width", 2);
+                            d3.selectAll(".tempTip").remove();
+                        });
+                // return
+                svg.selectAll(".returnline")
+                        .data(dataset)
+                        .enter()
+                        .append("path")
+                        .attr("class", "returnline")
+                        .attr("d", function (d, i) {
+                            var point0X = leftX + 115;
+                            var point0Y = (i * rectHeight + 102);
+                            var point1X = point0X + 50;
+                            var point1Y = point0Y;
+                            var point2X = point1X;
+                            var point2Y = point1Y - 75;
+                            var point3X = point0X + 30;
+                            var point3Y = point2Y;
+                            var path = "M" + point0X + "," + point0Y;
+                            path += " L" + point1X + "," + point1Y;
+                            path += " L" + point2X + "," + point2Y;
+                            path += " L" + point3X + "," + point3Y;
+                            return path;
+                        })
+                        .attr("fill", "none")
+                        .attr("stroke", "#6a5acd")
+                        .attr("stroke-width", 2)
+                        .attr("marker-end", "url(#arrowEnd)")
+                        .on("mouseover", function (d, i) {
+                            d3.select(this).transition().duration(500).attr("stroke-width", 4);
+                            var desc = d["status"]["IN_APPROVAL"]["options"]["RETURN"];
+                            svg.append("text").attr("class", "tempTip")
+                                    .attr("x", leftX + 170).attr("dy", i * rectHeight + 67)
+                                    .attr("width", "200")
+                                    .text(desc);
+                        })
+                        .on("mouseout", function (d, i) {
+                            d3.select(this).transition().duration(500).attr("stroke-width", 2);
+                            d3.selectAll(".tempTip").remove();
+                        });
+            };
+
+            $scope.drawSVG($scope.agl_flowlist, "svg_agile");
+            //$scope.drawSVG($scope.app_flowlist, "svg_app");
+        });
+    </script>
+{% endblock %}

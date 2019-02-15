@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% block title %}Wiki{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-sm-9">
+            <div>
+                <br/>
+            </div>
+            <div class="row">
+                <div class="col-sm-2">
+                    <h2 style="display: inline">Wiki</h2>
+                </div>
+                <div class="col-sm-8">
+                    <form class="" method="POST">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input class="form-control" name="s">
+                        <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default">搜索</button>
+                        </span>
+                    </div>
+                </form>
+                </div>
+                <br/>
+            </div>
+            <div>
+                <br/>
+            </div>
+            <div>
+                {% if wikis %}
+                    <table class="table">
+                        <tr>
+                            <td>英文缩略语</td>
+                            <td>中文含义</td>
+                            <td>描述</td>
+                        </tr>
+                        {% for wiki in wikis %}
+                            <tr>
+                                <td>
+                                    {{ wiki.abbr }}
+                                </td>
+                                <td>
+                                    {{ wiki.expression }}
+                                </td>
+                                <td>
+                                    {{ wiki.description }}
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    尚未添加Wiki
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-sm-3">
+            <form class="form-horizontal" method="POST" action="/wikiadd">
+                {% csrf_token %}
+                <fieldset>
+                    <legend>添加Wiki</legend>
+                    缩 略 语：<input class="form-control" type="text" name="abbr" placeholder="Abbr">
+                    中文含义：<input class="form-control" type="text" name="expression" placeholder="中文词组">
+                    详细描述：<textarea class="form-control" type="text" name="description" rows="12" placeholder="详细说明"></textarea>
+                </fieldset>
+                <fieldset>
+                    <input type="submit" value="添 加">
+                </fieldset>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        d3.select("#TeamTab").attr("class", "active");
+    </script>
+{% endblock %}

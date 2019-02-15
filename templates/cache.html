@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Cache管理{% endblock %}
+{% block body %}
+
+    <div>
+        <div>
+            {% if current_user %}
+                <form class="form-horizontal" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" id="do" name="do">
+
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="key">Key</label>
+
+                        <div class="col-sm-6">
+                            <input class="form-control" name="key">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for="passcode">PassCode</label>
+
+                        <div class="col-sm-6">
+                            <input class="form-control" name="passcode">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label col-sm-2" for=""></label>
+
+                        <div class="col-sm-6">
+                            <button type="submit" onclick="SetCacheAction('view')">View</button>
+                            <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                            <button type="submit" onclick="SetCacheAction('clear')">Clear</button>
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+        <div>
+            {% if cache_value %}
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label class="control-label col-sm-2"></label>
+
+                        <div class="col-sm-6">
+                            <textarea class="form-control" rows="15">
+                                {{ cache_value }}
+                            </textarea>
+                        </div>
+                    </div>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+{% block script %}
+    <script>
+        function SetCacheAction(action) {
+            document.getElementById("do").value = action;
+        }
+    </script>
+{% endblock %}

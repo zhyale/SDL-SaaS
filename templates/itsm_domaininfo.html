@@ -1,0 +1,33 @@
+<div>
+    <table class="table table-bordered">
+        <tr>
+            <td>域名</td>
+            <td>{{ domain.name }}</td>
+        </tr>
+        <tr>
+            <td>IP</td>
+            <td>{{ domain.ip.name }}</td>
+        </tr>
+        <tr>
+            <td>CI</td>
+            <td valign="middle">
+                {% for ci in domain.domain_cis.all %}
+                    <li>
+                    <a href="/itsm/ci/{{ ci.id }}" target="_blank">
+                        {{ ci.name }}
+                    </a>
+                    </li>
+                {% endfor %}
+            </td>
+        </tr>
+    </table>
+
+    {% if permit_delete %}
+    <form action="/itsm/domain-management" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="do" value="delete">
+    <input type="hidden" name="id" value="{{ domain.id }}">
+    <input type="submit" value="删除此域名">
+    </form>
+    {% endif %}
+</div>

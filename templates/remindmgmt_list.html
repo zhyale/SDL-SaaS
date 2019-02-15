@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% block title %}定时邮件提醒{% endblock %}
+{% block body %}
+    <div>
+        <h2><span class="glyphicon glyphicon-envelope"></span>定时邮件提醒</h2>
+
+        <div class="well well-sm">
+            <ul>
+                <li>重要任务提醒：如重要活动或者域名、证书续期，指定时间前60天、45天、30天、15天、7天、3天、2天、1天、6h、2h、30分、10分提醒；</li>
+                <li>例行任务提醒：如例行对IT环境执行扫描等，在设定的有效期内按照自定义的时间间隔发送邮件提醒；</li>
+                <li>一次性提醒：如临时任务，仅在设定时间提醒一次（误差五分钟）。</li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="panel col-sm-3">
+                <div>
+                    <h4>重要任务提醒</h4>
+                    {% for remind in deadline_reminds %}
+                        <div class="list-group-item remindblock">
+                            <div>
+                                <strong>{{ remind.title }}</strong>
+                            </div>
+                            <div>
+                                {{ remind.content }}
+                            </div>
+                            {% if remind.receivers.count %}
+                                <div>
+                                    提醒成员：
+                                    {% for receiver in remind.receivers.all %}
+                                        <a href="/user/{{ receiver.id }}" target="_blank">
+                                            <img src="{{ receiver.display_avatar_link }}" style="width: 25px"
+                                                 title="{{ receiver.username }} {{ receiver.email }}"/>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            {% if remind.extra_recipient %}
+                                <div>
+                                    收信地址： {{ remind.extra_recipient }}
+                                </div>
+                            {% endif %}
+                            <div style="background-color: #f59e00; border-radius: 5px;color: #EEEEEE;margin-top: 5px;margin-bottom: 2px;">
+                                <span class="glyphicon glyphicon-time small"
+                                      title="最迟完成日期">{{ remind.deadline_time | date:"Y-m-d H:i" }}</span>
+                            </div>
+                            <div>
+                                <a href="/remind/finish/{{ remind.id }}">
+                                    <small>标记为完成</small>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="panel panel-footer">
+                        <a href="/remind/create/deadline"><span class="glyphicon glyphicon-plus-sign"></span> 新建提醒</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel col-sm-3">
+                <h4>例行任务提醒</h4>
+                {% for remind in period_reminds %}
+                    <div class="list-group-item remindblock">
+                        <div>
+                            <strong>{{ remind.title }}</strong>
+                        </div>
+                        <div>
+                            {{ remind.content }}<br/><br/>
+                        </div>
+                        {% if remind.receivers.count %}
+                            <div>
+                                提醒成员：
+                                {% for receiver in remind.receivers.all %}
+                                    <a href="/user/{{ receiver.id }}" target="_blank">
+                                        <img src="{{ receiver.display_avatar_link }}" style="width: 25px"
+                                             title="{{ receiver.username }} {{ receiver.email }}"/>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if remind.extra_recipient %}
+                            <div>
+                                收信地址： {{ remind.extra_recipient }}
+                            </div>
+                        {% endif %}
+                        <div>
+                            首次提醒：{{ remind.first_remind_time | date:"Y-m-d H:i" }}
+                        </div>
+                        <div>
+                            提醒频度：{{ remind.get_repeat_method_display }}
+                            {% ifequal remind.repeat_method 'FIX' %}
+                                , {{ remind.get_interval_description }}
+                            {% endifequal %}
+                        </div>
+                        <div>
+                            过期时间：{{ remind.expire_time | date:"Y-m-d H:i" }}
+                        </div>
+                        <div>
+                            <a href="/remind/finish/{{ remind.id }}">
+                                <small>标记为完成</small>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="panel panel-footer">
+                    <a href="/remind/create/perd"><span class="glyphicon glyphicon-plus-sign"></span> 新建提醒</a>
+                </div>
+            </div>
+
+            <div class="panel col-sm-3">
+                <h4>一次性提醒</h4>
+                {% for remind in onetime_reminds %}
+                    <div class="list-group-item remindblock">
+                        <div>
+                            <strong>{{ remind.title }}</strong>
+                        </div>
+                        <div>
+                            {{ remind.content }}
+                        </div>
+                        {% if remind.receivers.count %}
+                            <div>
+                                提醒成员：
+                                {% for receiver in remind.receivers.all %}
+                                    <a href="/user/{{ receiver.id }}" target="_blank">
+                                        <img src="{{ receiver.display_avatar_link }}" style="width: 25px"
+                                             title="{{ receiver.username }} {{ receiver.email }}"/>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if remind.extra_recipient %}
+                            <div>
+                                收信地址： {{ remind.extra_recipient }}
+                            </div>
+                        {% endif %}
+                        <div style="background-color: #f59e00; border-radius: 5px;color: #EEEEEE;margin-top: 5px;margin-bottom: 2px;">
+                            <span class="glyphicon glyphicon-time small"
+                                  title="最迟完成日期">{{ remind.remind_time | date:"Y-m-d H:i" }}</span>
+                        </div>
+                        <div>
+                            <a href="/remind/finish/{{ remind.id }}">
+                                <small>标记为完成</small>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="panel panel-footer">
+                    <a href="/remind/create/onetime"><span class="glyphicon glyphicon-plus-sign"></span> 新建提醒</a>
+                </div>
+            </div>
+
+            <div class="panel col-sm-3">
+                <h4>已完成的提醒(30天)</h4>
+                {% for remind in finished_reminds %}
+                    <div class="list-group-item remindblock">
+                        <div>
+                            <strong>{{ remind.title }}</strong>
+                        </div>
+                        <div>
+                            {{ remind.content }}
+                        </div>
+                        <div>
+                            完成时间：{{ remind.finish_time | date:"Y-m-d H:i:s" }}
+                        </div>
+                        <div>
+                            <a href="/remind/undo/{{ remind.id }}">
+                                <small>标记为未完成</small>
+                            </a>
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

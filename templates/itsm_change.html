@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}变更管理{% endblock %}
+{% block body %}
+<div class="row">
+<div class="col-sm-9">
+    <div>
+        <h1>
+            建设中...
+        </h1>
+    </div>
+    <div>
+        <br/>
+        返回到<a href="/itsm">ITSM（IT服务管理）</a>
+    </div>
+</div>
+<div class="col-sm-3">
+</div>
+</div>
+
+{% endblock %}
+{% block script %}
+<script>
+d3.select("#ITSMTab").attr("class", "active");
+</script>
+{% endblock %}

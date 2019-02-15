@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+{% block title %}配置管理{% endblock %}
+{% block head_seo %}
+    <meta name="keywords" content="ITSM,配置管理" />
+    <meta name="description" content="建立和管理IT基础环境数据库，为IT服务管理提供数据支持。"/>
+{% endblock %}
+{% block body %}
+<div class="row">
+<div class="col-sm-9">
+    <div>
+        <h2 class="text-center">{{ ci.name }}</h2>
+    </div>
+    <div>
+        <table class="table table-responsive">
+            <tr>
+                <td class="col-sm-2">CI名称</td>
+                <td>{{ ci.name }}</td>
+            </tr>
+            <tr>
+                <td>分类</td>
+                <td>{{ ci.get_category_display }}</td>
+            </tr>
+            <tr>
+                <td>描述</td>
+                <td>{{ ci.description }}</td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle;">绑定的IP</td>
+                <td>
+                <ul class="list-inline">
+                    {% for ip in ci.bind_ips.all %}
+                        <li class="list-group-item-success">{{ ip.name }}</li>
+                    {% endfor %}
+                </ul>
+                </td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle;">绑定的域名</td>
+                <td>
+                <ul class="list-inline">
+                    {% for domain in ci.bind_domains.all %}
+                        <li class="list-group-item-success">{{ domain.name }}</li>
+                    {% endfor %}
+                </ul>
+                </td>
+            </tr>
+            <tr>
+                <td>状态</td>
+                <td>{{ ci.get_status_display }}</td>
+            </tr>
+            <tr>
+                <td>创建时间</td>
+                <td>{{ ci.create_time |date:"Y-m-d H:i:s" }}</td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle;">上游CI<br/>(往应用层)</td>
+                <td>
+                <ul class="list-inline">
+                    {% for up_ci in ci.up_stream_cis.all %}
+                        <li class="list-group-item-success"><a href="/itsm/ci/{{ up_ci.id }}">{{ up_ci.name }}</a></li>
+                    {% endfor %}
+                </ul>
+                <div>
+                    <form action="/itsm/ci/addupci" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{ ci.id }}">
+                    <div class="input-group">
+                        <input class="form-control" name="up_ci_name" placeholder="上游CI名称">
+                        <span class="input-group-btn">
+                          <button class="btn btn-default" type="submit">添加</button>
+                        </span>
+                    </div>
+                </form>
+                </div>
+                </td>
+            </tr>
+            <tr>
+                <td style="vertical-align: middle;">下游CI<br/>(往物理层)</td>
+                <td>
+                <ul class="list-inline">
+                    {% for down_ci in ci.down_stream_cis.all %}
+                        <li class="list-group-item-success"><a href="/itsm/ci/{{ down_ci.id }}">{{ down_ci.name }}</a></li>
+                    {% endfor %}
+                </ul>
+                <div>
+                <form action="/itsm/ci/adddownci" method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{ ci.id }}">
+                    <div class="input-group">
+                        <input class="form-control" name="down_ci_name" placeholder="下游CI名称">
+                        <span class="input-group-btn">
+                          <button class="btn btn-default" type="submit">添加</button>
+                        </span>
+                    </div>
+                </form>
+                </div>
+                </td>
+            </tr>
+        {% for key,value in sub_ci_dict.items %}
+            <tr>
+                <td>{{ key }}</td>
+                <td>
+                    {% if value %}
+                    {{ value }}
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+
+        </table>
+    </div>
+
+    <div id="svgdiv">
+
+    </div>
+
+    <div>
+        <br/>
+        返回到<a href="/itsm/configuration-management">配置管理</a>
+    </div>
+</div>
+<div class="col-sm-3">
+</div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+d3.select("#ITSMTab").attr("class", "active");
+var ci_stream_json={{ ci_stream_json | safe }};
+var up_stream_cis=ci_stream_json["up_stream_cis"];
+var down_stream_cis=ci_stream_json["down_stream_cis"];
+var max_count=Math.max(up_stream_cis.length, down_stream_cis.length);
+if(max_count==0) max_count=1;
+var leftX=100;
+var svg_width = leftX+ max_count*150+300;
+var svg_height = 400;
+var ci_width=150;
+var current_ci_startX=leftX+(max_count-1)*75+20;
+var up_stream_ci_startX=current_ci_startX-(up_stream_cis.length-1)*75;
+var down_stream_ci_startX=current_ci_startX-(down_stream_cis.length-1)*75;
+d3.select("#svgdiv").selectAll("svg").remove();
+var svg = d3.select("#svgdiv").append("svg").attr("width", svg_width).attr("height", svg_height).attr("xmlns","http://www.w3.org/2000/svg").attr("version","1.1");
+svg.append("defs")
+        .append("marker").attr("id","arrowEnd").attr("markerWidth","13").attr("markerHeight","13").attr("refX",0).attr("refY",2).attr("orient","auto")
+        .append("path").attr("d","M0,0 L0,4 L6,2 L0,0").attr("style","fill: #6a5acd;")
+
+svg.selectAll(".up_stream_ci_name")
+        .data(up_stream_cis)
+        .enter()
+        .append("text")
+        .attr("class","up_stream_ci_name")
+        .attr("y",80)
+        .attr("dx",function(d,i){
+            return  i * 150+up_stream_ci_startX+10;
+        })
+        .text(function(d,i){
+            return d.name;
+        });
+svg.selectAll(".up_stream_ci_rect")
+        .data(up_stream_cis)
+        .enter()
+        .append("rect")
+        .attr("class", "up_stream_ci_rect")
+        .attr("y",50)
+        .attr("x",function(d,i){
+             return i * 150+up_stream_ci_startX;
+        })
+        .attr("rx",20)
+        .attr("ry",20)
+        .attr("width",130)
+        .attr("height",50)
+        .attr("opacity","0.4")
+        .attr("fill","#f0ffff")
+        .attr("stroke","#6a5acd")
+        .attr("stroke-width",2)
+        .on("mouseover",function(d,i){
+                d3.select(this).attr("fill","yellow");
+                var desc= "上游CI："+  d["category"]+" 描述："+ d["description"];
+                svg.append("text").attr("class","tempTip").attr("dx",up_stream_ci_startX+i*150).attr("dy",40).attr("width","200").text(desc);
+           })
+        .on("mouseout",function(d,i){
+                d3.select(this).transition().attr("fill","#f0ffff");
+                d3.selectAll(".tempTip").remove();
+           })
+        .on("click",function(d,i){
+            window.location.href="/itsm/ci/"+d["id"];
+        });
+svg.append("text")
+        .attr("y",170)
+        .attr("x",current_ci_startX+10)
+        .text(ci_stream_json["name"]);
+svg.append("rect")
+        .attr("x",current_ci_startX)
+        .attr("y",140)
+        .attr("rx",20)
+        .attr("ry",20)
+        .attr("width",130)
+        .attr("height",50)
+        .attr("opacity","0.4")
+        .attr("fill","#90ffff")
+        .attr("stroke","#6a5acd")
+        .attr("stroke-width",2)
+        .on("mouseover",function(){
+                d3.select(this).attr("fill","yellow");
+                var desc= "当前CI："+  ci_stream_json["category"]+" 描述："+ ci_stream_json["description"];
+                svg.append("text").attr("class","tempTip").attr("dx",current_ci_startX).attr("dy",135).attr("width","200").text(desc);
+           })
+        .on("mouseout",function(d,i){
+                d3.select(this).transition().attr("fill","#90ffff");
+                d3.selectAll(".tempTip").remove();
+           });
+svg.selectAll(".down_stream_ci_name")
+        .data(down_stream_cis)
+        .enter()
+        .append("text")
+        .attr("class","down_stream_ci_name")
+        .attr("y",260)
+        .attr("dx",function(d,i){
+            return  i * 150+down_stream_ci_startX+10;
+        })
+        .text(function(d){
+            return d.name;
+        });
+svg.selectAll(".down_stream_ci_rect")
+        .data(down_stream_cis)
+        .enter()
+        .append("rect")
+        .attr("class", "down_stream_ci_rect")
+        .attr("y",230)
+        .attr("x",function(d,i){
+             return i * 150+down_stream_ci_startX;
+        })
+        .attr("rx",20)
+        .attr("ry",20)
+        .attr("width",130)
+        .attr("height",50)
+        .attr("opacity","0.4")
+        .attr("fill","#f0ffff")
+        .attr("stroke","#6a5acd")
+        .attr("stroke-width",2)
+        .on("mouseover",function(d,i){
+                d3.select(this).attr("fill","yellow");
+                var desc= "下游CI："+  d["category"]+" 描述："+ d["description"];
+                svg.append("text").attr("class","tempTip").attr("dx",down_stream_ci_startX+i*150).attr("dy",225).attr("width","300").text(desc);
+           })
+        .on("mouseout",function(d,i){
+                d3.select(this).transition().attr("fill","#f0ffff");
+                d3.selectAll(".tempTip").remove();
+           })
+        .on("click",function(d,i){
+            window.location.href="/itsm/ci/"+d["id"];
+        });
+
+if(up_stream_cis.length>0){
+    svg.append("line").attr("x1",leftX).attr("y1",120).attr("x2",leftX+600).attr("y2",120)
+            .attr("stroke","#dddddd").attr("stroke-width",1);
+    svg.append("text").attr("x",10).attr("y",80).text("上游CI");
+    svg.selectAll(".up_stream_line")
+        .data(up_stream_cis)
+        .enter()
+        .append("line")
+        .attr("x1",current_ci_startX+60).attr("y1",140).attr("x2",function(d,i){
+            return up_stream_ci_startX+i*ci_width+60;
+        }).attr("y2",105)
+        .attr("stroke","#6a5acd").attr("stroke-width",1)
+        .attr("marker-end","url(#arrowEnd)");
+}
+svg.append("text").attr("x",10).attr("y",170).text("当前CI");
+if(down_stream_cis.length>0) {
+    svg.append("line").attr("x1",leftX).attr("y1",210).attr("x2",leftX+600).attr("y2",210)
+            .attr("stroke","#dddddd").attr("stroke-width",1);
+    svg.append("text").attr("x",10).attr("y",260).text("下游CI");
+    svg.selectAll(".down_stream_line")
+        .data(down_stream_cis)
+        .enter()
+        .append("line")
+        .attr("x1",current_ci_startX+60).attr("y1",190).attr("x2",function(d,i){
+            return down_stream_ci_startX+i*ci_width+60;
+        }).attr("y2",225)
+        .attr("stroke","#6a5acd").attr("stroke-width",1)
+        .attr("marker-end","url(#arrowEnd)");
+}
+</script>
+{% endblock %}

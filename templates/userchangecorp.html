@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Email变更{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-sm-9">
+            <div class="alert alert-info">
+                <p>变更邮件地址，将退出当前所有团队；<br/>
+                    系统将向新的Email地址发送一封带有验证码的邮件，用于验证您的身份。
+                </p>
+            </div>
+            <form class="form-row" action="/changecorp" method="POST">
+                {% csrf_token %}
+                {% if new_email %}
+                    {# 提示输入新Email收到的验证码 #}
+                    <input type="hidden" name="new_email" value="{{ new_email }}">
+                    <div class="form-group">
+                        <div class="input-group">
+                        <input name="check_code" class="form-control" placeholder="请输入新邮件收到的验证码">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit">提交</button>
+                        </span>
+                    </div>
+                    </div>
+
+                {% else %}
+                    {# 提示输入新的邮件地址 #}
+                    <div class="form-group">
+                        <div class="input-group">
+                        <input name="new_email" class="form-control" placeholder="新的Email地址">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="submit">提交</button>
+                        </span>
+                    </div>
+                    </div>
+                {% endif %}
+            </form>
+
+        </div>
+        <div class="col-sm-3"></div>
+
+    </div>
+{% endblock %}

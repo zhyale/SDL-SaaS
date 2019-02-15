@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}IP地址管理{% endblock %}
+{% block body %}
+<div class="row">
+<div class="col-sm-9">
+    <div>
+    <div class="col-sm-3">
+        <h2 style="display: inline">IP地址管理</h2>
+    </div>
+    <div class="col-sm-9">
+        <form class="" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="do" value="search">
+        <div class="input-group">
+            <input class="form-control" name="s" placeholder="输入IP开始检索">
+            <span class="input-group-btn">
+            <button type="submit" class="btn btn-default">搜索</button>
+            </span>
+        </div>
+        </form>
+
+        <br/>
+    </div>
+    </div>
+
+
+{% if result_ips %}
+    <div class="row">
+    <table class="table">
+    <caption>检索结果：</caption>
+    <tr>
+        <td class="col-sm-2">IP</td>
+        <td class="col-sm-5">类型</td>
+    </tr>
+    {% for ip in result_ips %}
+        <tr>
+            <td>
+                <a href="#" onclick="ShowIPInfo({{ ip.id }})">
+                    {{ ip.name }}
+                </a>
+            </td>
+            <td>{{ ip.get_category_display }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+    </div>
+{% endif %}
+
+<div>
+
+{% if ips %}
+<div class="row">
+<table class="table">
+<caption>IP列表</caption>
+<tr>
+    <td class="col-sm-2">IP</td>
+    <td class="col-sm-5">类型</td>
+</tr>
+{% for ip in ips.all %}
+    <tr>
+        <td>
+            <a href="#" onclick="ShowIPInfo({{ ip.id }})">
+                {{ ip.name }}
+            </a>
+        </td>
+        <td>{{ ip.get_category_display }}</td>
+    </tr>
+{% endfor %}
+</table>
+</div>
+{% endif %}
+
+</div>
+
+
+
+    <div>
+        <br/>
+        返回到<a href="/itsm">ITSM（IT服务管理）</a>
+    </div>
+</div>
+<div class="col-sm-3">
+    <form class="form-horizontal" method="POST">
+        {% csrf_token %}
+         <input type="hidden" name="do" value="add">
+        添加IP地址：<br/><br/>
+        <input class="form-control" name="name" placeholder="请输入IP地址">
+        <br/>
+        <select class="form-control" name="category">
+            <option value="INNER">内网业务IP地址</option>
+            <option value="OUTER">外网业务IP地址</option>
+            <option value="DMZ">DMZ业务IP地址</option>
+            <option value="ADM">管理网IP地址</option>
+            <option value="BAK">备份网IP地址</option>
+            <option value="VPN">专网IP地址</option>
+            <option value="OTHER">其它IP地址</option>
+        </select>
+        <br/>
+        <button type="submit">
+            添加
+        </button>
+    </form>
+</div>
+<div id="IPModal" class="modal fade" role="dialog" aria-labelledby="IPName" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                IP信息
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body" id="IPInfo" style="overflow-y: auto;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+d3.select("#ITSMTab").attr("class", "active");
+function ShowIPInfo(ip_id) {
+            $("#IPInfo").load("/itsm/ip/" + ip_id);
+            $("#IPModal").modal();
+        }
+</script>
+{% endblock %}

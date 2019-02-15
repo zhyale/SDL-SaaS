@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}工作圈{% endblock %}
+{% block body %}
+<div class="row"  ng-app="ngCircle" ng-controller="ngCircleController">
+    <div class="col-sm-6">
+        <div>
+            <form class="form-horizontal" method="POST" action="#" enctype="multipart/form-data" role="form">
+                {% csrf_token %}
+                <div>
+                    <textarea class="form-control" name="msg" rows="4" placeholder="想说点什么...（300字以内）"></textarea>
+                </div>
+                <div class="input-group" style="margin-top: 2px;">
+                    <select name="anonymous" class="form-control">
+                    <option value="0">使用实名发布：{{ current_user.username }}</option>
+                    <option value="1">使用昵称发布：{{ current_user.nickname | default:"匿名" }}</option>
+                    </select>
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-default">立即发布</button>
+                    </span>
+                </div>
+            </form>
+        </div>
+        <h4 class="page-header">团队圈</h4>
+        <ul class="list-group">
+            {% for msg in team_msgs %}
+                <li class="list-group-item circlemessageblock">
+                    <div class="row">
+                        <div class="col-sm-10">
+                            {% if msg.anonymous %}
+                                {{ msg.sender.nickname | default:"匿名" }}:
+                            {% else %}
+                                <a href="/user/{{ msg.sender.id }}"  target="_blank"><img src="{{ msg.sender.display_avatar_link }}" width="25px" />{{ msg.sender }}</a>:
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-2">
+                            {% ifequal current_user msg.sender %}
+                            <form class="form-inline" method="POST" action="/circledelete" enctype="multipart/form-data" ng-submit="submit()">
+                            {% csrf_token %}
+                            <input type="hidden" name="mid" value="{{ msg.id }}">
+                            <button type="submit" class="btn btn-link"><span class="glyphicon glyphicon-trash" style="color: #005500;" title="删除"> </span></button>
+                            </form>
+                            {% endifequal %}
+                        </div>
+                    </div>
+                    <div>
+                        <p>{{ msg.body | safe }}</p>
+                        [{{ msg.sent_time | date:"m-d H:i" }}]
+                    </div>
+
+                    {% if msg.praised_by.count %}
+                        <div style="margin-bottom: 8px;background-color: #e0e0e0;border-radius: 10px;" class="">
+                        <span class="glyphicon glyphicon-heart-empty" style="padding: 8px;"></span>
+                        {% for member in msg.praised_by.all %}
+                            {% if msg.anonymous %}{{ member.nickname | default:"匿名" }}, {% else %}{{ member.username }}, {% endif %}
+                        {% endfor %}
+                        </div>
+                    {% endif %}
+                    {% if msg.source_circle_msgs.count %}
+                    <div>
+                        <ul class="list-group">
+                        {% for reply_msg in msg.source_circle_msgs.all %}
+                            <li class="list-group-item">
+                                [{{ reply_msg.sent_time | date:"m-d H:i" }}]
+                                {% if reply_msg.anonymous %}
+                                    {{ reply_msg.sender.nickname | default:"匿名" }}:
+                                {% else %}
+                                    <a href="/user/{{ reply_msg.sender.id }}"  target="_blank"><img src="{{ reply_msg.sender.display_avatar_link }}" width="25px" />{{ reply_msg.sender }}</a>:
+                                {% endif %}
+                                {{ reply_msg.body | safe  }}
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+
+                    <div>
+                        <form class="form-row" method="POST" action="#" enctype="multipart/form-data" ng-submit="submit()">
+                            {% csrf_token %}
+                            <input type="hidden" name="source_id" value="{{ msg.id }}">
+                            <div class="input-group col-sm-12">
+                                <input type="text" name="msg" class="form-control">
+                                <span class="input-group-btn">
+                                    <button type="submit" class="btn btn-default">回复</button>
+                                    <button type="submit" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-heart-empty"></span> 点赞
+                                    </button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+
+
+
+                </li>
+            {% endfor %}
+            </ul>
+    </div>
+
+</div>
+{% endblock %}
+{% block script %}
+<script>
+var app=angular.module("ngCircle",[]);
+app.controller("ngCircleController",function($scope,$http) {
+    d3.select("#TeamTab").attr("class", "active");
+});
+
+</script>
+{% endblock %}

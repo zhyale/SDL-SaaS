@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}IP地址查询{% endblock %}
+{% block body %}
+    <div>
+        <div class="row">
+            <div class="col-sm-9">
+                <h2>IP地址查询</h2>
+                <div>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="ip" id="ip" placeholder="请输入IP地址" onkeypress="if (event.keyCode == 13) IPQuery();">
+                        <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" onclick="IPQuery()">查询</button>
+                        </span>
+                    </div>
+                </div>
+                <div>
+                    <br/>
+                </div>
+                <table class="table table-bordered">
+                    <tr>
+                        <td class="col-sm-2">IP</td>
+                        <td>{{ ip }}</td>
+                    </tr>
+                    <tr>
+                        <td>地址</td>
+                        <td>{{ address }}</td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-sm-3">
+
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+{% block script %}
+<script>
+function IPQuery(){
+    var ip=$("#ip").val();
+    window.location.href="/tool/ip/"+ip;
+}
+</script>
+{% endblock %}

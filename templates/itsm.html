@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}IT服务管理{% endblock %}
+{% block head_seo %}
+    <meta name="keywords" content="ITSM,IT服务管理,配置管理,变更管理,事件管理" />
+    <meta name="description" content="在线IT服务管理，帮助企业实施高质量的运维管理，包括建立和管理IT基础环境数据库，处理变更，处置运维事件等。"/>
+{% endblock %}
+{% block body %}
+<div class="row">
+<div class="col-sm-9">
+<div class="alert alert-info">
+    在线IT服务管理(ITSM SaaS)，帮助企业实施高质量的运维管理：
+    <ul>
+        <li>建立和管理IT基础环境数据库，该数据库拥有IT环境的关键信息，可供查询，包含机房、网络设备、存储设备、服务器、操作系统、中间件、IP地址、应用入口等，以及它们之间的上下游关系；</li>
+        <li>处理变更及维护变更过程纪录，当变更失败时，可以根据纪录回退到之前版本；</li>
+        <li>当服务器出现异常（服务不可用、性能下降）或发生安全事件（服务器被入侵）时，可供分析及快速定位问题；</li>
+        <li>当某个开源组件的某个版本出现高危漏洞时，可以迅速找到本公司使用该组件及漏洞版本的所有实例，第一时间进行修复。</li>
+    </ul>
+</div>
+
+<div class="panel">
+    <div class="list-group-item">
+        <div>
+            <h2>
+                <span class="glyphicon glyphicon-barcode"></span>
+                <a href="/itsm/configuration-management">配置管理</a>
+            </h2>
+        </div>
+        <div>
+            IT环境基础数据库，执行CI（Configuration Item, 配置项）的查询、登记、修改等操作。<br/>
+            这些是CI: 操作系统、中间件(Apache/Nginx/Memcached/Redis/Struts/CGI/MQ)、数据库、系统服务、产品/应用；<br/>
+            这些也是CI: 机房、服务器、网络设备等。<br/>
+            建设中...
+            <br/>
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="list-group-item">
+        <div>
+            <h2>
+                <span class="glyphicon glyphicon-edit"></span>
+                变更管理
+            </h2>
+        </div>
+        <div>
+            管理产品运行过程中的新版本发布、回退，以及对系统或数据的修改、删除、添加等动作，维护好变更纪录以便回溯。<br/>
+            建设中...
+            <br/>
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="list-group-item">
+        <div>
+            <h2>
+                <span class="glyphicon glyphicon-flash"></span>
+                事件管理
+            </h2>
+        </div>
+        <div>
+            管理产品运行过程中的突发事件（宕机、服务不可用、监控报告异常、入侵或外部漏洞报告），在尽可能短的时间内，快速恢复系统运行（越快越好）。<br/>
+            建设中...
+            <br/>
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="list-group-item">
+        <div>
+            <h2>
+                <span class="glyphicon glyphicon-question-sign"></span>
+                问题管理
+            </h2>
+        </div>
+        <div>
+            管理产品运行过程中的频繁出现的异常故障，组织专业人员，深入分析问题发生的根本原因，旨在彻底解决问题。<br/>
+            建设中...
+            <br/>
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="list-group-item">
+        <div>
+            <h2>
+                <span class="glyphicon glyphicon-paperclip"></span>
+                <a href="/itsm/ip-management">IP地址</a>
+            </h2>
+        </div>
+        <div>
+            IP地址资源的登记、查询。<br/>
+            <br/>
+        </div>
+    </div>
+</div>
+
+<div class="panel">
+    <div class="list-group-item">
+        <div>
+            <h2>
+                <span class="glyphicon glyphicon-link"></span>
+                <a href="/itsm/domain-management">域名</a>
+            </h2>
+        </div>
+        <div>
+            域名资源的登记、查询。<br/>
+            <br/>
+        </div>
+    </div>
+</div>
+
+</div>
+<div class="col-sm-3">
+</div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+d3.select("#ITSMTab").attr("class", "active");
+</script>
+{% endblock %}

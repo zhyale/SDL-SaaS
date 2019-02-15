@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}用户资料{% endblock %}
+{% block body %}
+    {% if current_user %}
+        <form action="/useredit" enctype="multipart/form-data" method="POST">
+            <table class="table">
+                <caption>用户资料</caption>
+                <tr>
+                    <td class="col-sm-2">头像</td>
+                    <td class="col-sm-8">
+                        {% if current_user.avatar_link %}
+                            <img id="imgPre" src="{{ current_user.avatar_link }}" width="50px" height="50px"/>
+                        {% else %}
+                            <img id="imgPre" src="" width="50px" height="50px"/>
+                        {% endif %}
+                        <input type="file" id="avatar" name="avatar" accept="image/png,image/jpeg"
+                               onchange="DisplayLocalImage(this.value)">
+                    </td>
+                </tr>
+                <tr>
+                    <td>姓名拼音</td>
+                    <td><input type="text" name="username" value="{{ current_user.username }}"></td>
+                </tr>
+                <tr>
+                    <td>昵称(用于工作圈)</td>
+                    <td>
+                        <input type="text" name="nickname" value="{{ current_user.nickname }}">
+                        <span class="alert alert-info">工作圈允许使用昵称发布动态</span>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>Email</td>
+                    <td>
+                        {{ current_user.email }} &nbsp;<a href="/changecorp">已加入新公司，申请变更Email</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>手机号码</td>
+                    <td><input type="text" name="mobile" value="{{ current_user.mobile | default:"" }}"></td>
+                </tr>
+                <tr>
+                    <td>部门名称</td>
+                    <td><input type="text" name="department" value="{{ current_user.department | default:"" }}"></td>
+                </tr>
+                <tr>
+                    <td>办公地点</td>
+                    <td><input type="text" name="location" value="{{ current_user.location | default:"" }}"></td>
+                </tr>
+
+                <tr>
+                    <td>旧密码</td>
+                    <td>
+                        <input type="password" id="oldpwd" name="oldpwd" size="20"/><span
+                            class="alert alert-info">如果您不需要修改密码，请保留空白。</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>新密码</td>
+                    <td>
+                        <input type="password" id="newpwd" name="newpwd" size="20"/><span class="alert alert-info">如果您不需要修改密码，请保留空白。</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>新密码</td>
+                    <td>
+                        <input type="password" id="newpwd2" size="20" oninput="CheckPassword2()"/><span id="message"
+                                                                                                        class="alert alert-info">如果您不需要修改密码，请保留空白。</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>签名档</td>
+                    <td><textarea name="introduction" rows="5"
+                                  cols="22">{{ current_user.introduction | default:"" }}</textarea></td>
+                </tr>
+            </table>
+            {% csrf_token %}
+            <button type="submit" onclick="return EncryptPassword();">修改</button>
+        </form>
+    {% endif %}
+{% endblock %}
+{% block script %}
+    <script src="/static/jsbn/jsbn.js"></script>
+    <script src="/static/jsbn/prng4.js"></script>
+    <script src="/static/jsbn/rng.js"></script>
+    <script src="/static/jsbn/rsa.js"></script>
+    <script>
+        function CheckPassword2() {
+            var pwd1 = $("#newpwd");
+            var pwd2 = $("#newpwd2");
+            if (pwd2.val() != pwd1.val()) {
+                $("#message").text("两次密码校验不一致!");
+            }
+            else {
+                $("#message").text("校验一致 !");
+            }
+        }
+
+        function DisplayLocalImage(value) {
+            // Get file URL
+            var url;
+            if (navigator.userAgent.indexOf("MSIE") >= 1) { // IE
+                url = value;
+            }
+            else {
+                // Firefox & Chrome
+                url = window.URL.createObjectURL(document.getElementById("avatar").files[0]);
+            }
+            document.getElementById("imgPre").src = url;
+        }
+
+        function EncryptPassword() {
+            var oldpwd = document.getElementById("oldpwd").value;
+            if (oldpwd == "") return true;
+            var newpwd = document.getElementById("newpwd").value;
+            if (newpwd == "") return true;
+            var rsa = new RSAKey();
+            rsa.setPublic("ae322ee35120fe1653d696bfdf9b08fccbe0eeee8cb81a565c818f793afb41536b291899562d286d28045f0faff5492cc637035babe24cc60e8a10e790b0a3e9ce7b78d9b0240d8a34e9004dc2f92c54240462fc1ffc780344f5cbaded1a61a776917e6ae3ca8f5cf8b3b615ce0d07aec803f24c480f1bca8f64457e55812b73", "10001");
+            document.getElementById("oldpwd").value = rsa.encrypt(oldpwd);
+            document.getElementById("newpwd").value = rsa.encrypt(newpwd);
+            return true;
+        }
+    </script>
+{% endblock %}

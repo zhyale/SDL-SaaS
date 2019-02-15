@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}登录{% endblock %}
+{% block head_seo %}
+    <meta name="keywords" content="在线项目管理平台,SDL,Security Development Lifecycle,安全的项目管理,安全生命周期"/>
+    <meta name="description"
+          content="在线项目管理平台需要您登录后使用。这是一个以安全内控为特色的在线项目管理平台（SDL SaaS），它源于安全开发周期方法论和国际/国内巨头公司的项目管理实践，从源头开始进行安全控制，通过规范的项目管理过程和KCP任务的引入，确保开发设计及部署过程中遵从安全标准与规范，保障所交付产品在全生命周期过程中的安全性。"/>
+{% endblock %}
+
+{% block body %}
+    <div class="well well-sm">
+    提示：
+    <ul>
+        <li>
+            您可以先使用体验账号（办公邮箱linghuchong@janusec.com 密码Flzx3000c）进行体验；
+        </li>
+        <li>
+            体验账号和密码不用手工输入，直接点击登录按钮旁边的Demo即可自动填入；
+        </li>
+        <li>
+            如果您是采用本站提供的在线 <a href="/password/generator" title="密码生成器" target="_blank">密码生成器</a> 生成的口令，可 <a href="/password/generator" title="密码生成器" target="_blank">在此</a> 输入您的助记诗词尝试找回。
+        </li>
+    </ul>
+    </div>
+    <div style="margin-top: 10px;">
+        <form class="form-horizontal" role="form" method="POST">
+            <div class="form-group">
+                <label for="email" class="col-sm-2 control-label">办公电子邮箱</label>
+
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="email" name="email" placeholder="请输入您的办公电子邮箱"
+                           oninput="CheckEmail(this.value)">
+                </div>
+                <span id="emailNote" style="color: red;"></span>
+            </div>
+            <div class="form-group">
+                <label for="password" class="col-sm-2 control-label">口令</label>
+
+                <div class="col-sm-4">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="请输入口令">
+                </div>
+            </div>
+
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="col-sm-2 control-label"></label>
+
+                <div class="col-sm-4">
+                    <button type="submit" class="btn btn-default" onclick="EncryptPassword()">登录</button>
+                    <button type="button" class="btn btn-link" onclick="FillDemoAccount()">Demo</button>
+                    <button type="button" class="btn btn-link" onclick="window.location.href='/lostpwd';">忘记口令</button>
+                </div>
+            </div>
+
+
+        </form>
+    </div>
+    <script>
+    function CheckEmail(email) {
+            if (email.indexOf("@") < 0) {
+                document.getElementById("emailNote").innerText = "请输入有效的电子邮件地址！";
+            }
+            else document.getElementById("emailNote").innerText = "";
+        }
+    </script>
+
+{% endblock %}
+{% block script %}
+    <script src="/static/js/jquery.cookie.js"></script>
+    <script src="/static/jsbn/jsbn.js"></script>
+    <script src="/static/jsbn/prng4.js"></script>
+    <script src="/static/jsbn/rng.js"></script>
+    <script src="/static/jsbn/rsa.js"></script>
+    <script>
+        var default_email = $.cookie("email");
+        if (default_email) {
+            document.getElementById("email").value = default_email;
+            document.getElementById("password").focus();
+        }
+        else document.getElementById("email").focus();
+
+
+        function FillDemoAccount() {
+            document.getElementById("email").value = "linghuchong@janusec.com";
+            document.getElementById("password").value = "Flzx3000c";
+        }
+        function EncryptPassword() {
+            var password0 = document.getElementById("password").value;
+            var rsa = new RSAKey();
+            rsa.setPublic("ae322ee35120fe1653d696bfdf9b08fccbe0eeee8cb81a565c818f793afb41536b291899562d286d28045f0faff5492cc637035babe24cc60e8a10e790b0a3e9ce7b78d9b0240d8a34e9004dc2f92c54240462fc1ffc780344f5cbaded1a61a776917e6ae3ca8f5cf8b3b615ce0d07aec803f24c480f1bca8f64457e55812b73", "10001");
+            document.getElementById("password").value = rsa.encrypt(password0);
+        }
+
+    </script>
+{% endblock %}

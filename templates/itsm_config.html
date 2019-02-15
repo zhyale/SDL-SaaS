@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}配置管理{% endblock %}
+{% block head_seo %}
+    <meta name="keywords" content="ITSM,配置管理" />
+    <meta name="description" content="建立和管理IT基础环境数据库，为IT服务管理提供数据支持。"/>
+{% endblock %}
+{% block body %}
+<div class="row">
+<div class="col-sm-9">
+    <div>
+    <div class="col-sm-3">
+        <h2 style="display: inline">配置管理</h2>
+    </div>
+    <div class="col-sm-9">
+        <form class="" method="POST">
+        {% csrf_token %}
+        <div class="input-group">
+            <input class="form-control" name="s" placeholder="输入CI Name或描述中的字符开始检索">
+            <span class="input-group-btn">
+            <button type="submit" class="btn btn-default">搜索</button>
+            </span>
+        </div>
+        </form>
+
+        <br/>
+    </div>
+    </div>
+
+
+{% if result_cis %}
+    <div class="row">
+    <table class="table">
+    <caption>检索结果：</caption>
+    <tr>
+        <td class="col-sm-2">CI Name</td>
+        <td class="col-sm-5">描述</td>
+        <td class="col-sm-3">分类</td>
+        <td class="col-sm-2">状态</td>
+    </tr>
+    {% for ci in result_cis %}
+        <tr>
+            <td>
+                <a href="/itsm/ci/{{ ci.id }}">
+                    {{ ci.name }}
+                </a>
+            </td>
+            <td>{{ ci.description }}</td>
+            <td>{{ ci.get_category_display }}</td>
+            <td>{{ ci.get_status_display }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+    </div>
+{% endif %}
+
+
+{% if ci_set %}
+    <div class="row">
+    <table class="table">
+    <caption>CI列表</caption>
+    <tr>
+        <td class="col-sm-2">CI Name</td>
+        <td class="col-sm-5">描述</td>
+        <td class="col-sm-3">分类</td>
+        <td class="col-sm-2">状态</td>
+    </tr>
+    {% for ci in ci_set.cis %}
+        <tr>
+            <td>
+                <a href="/itsm/ci/{{ ci.id }}" target="_blank">
+                    {{ ci.name }}
+                </a>
+            </td>
+            <td>{{ ci.description }}</td>
+            <td>{{ ci.get_category_display }}</td>
+            <td>{{ ci.get_status_display }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+    </div>
+{% endif %}
+
+    <div>
+        <br/>
+        返回到<a href="/itsm">ITSM（IT服务管理）</a>
+    </div>
+</div>
+<div class="col-sm-3">
+    <form class="form-horizontal" method="POST" action="/itsm/ci/add">
+                {% csrf_token %}
+                <fieldset>
+                    <legend>创建CI（配置项）</legend>
+                    请选择CI类型：
+                    <select class="form-control" name="category">
+                        {% for value,label in categories %}
+                            <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </fieldset>
+                <fieldset>
+                    <input type="submit" value="下一步">
+                </fieldset>
+            </form>
+</div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+d3.select("#ITSMTab").attr("class", "active");
+</script>
+{% endblock %}

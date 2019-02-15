@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}密码生成器{% endblock %}
+{% block head_seo %}
+    <meta name="keywords" content="密码生成器,诗词密码生成器,骰子密码生成器,口令生成器"/>
+    <meta name="description" content="趣味密码生成器，将诗词、格言、经典句子转换为密码（口令），让密码有趣又好记！"/>
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-sm-9" style="min-height: 300px;">
+        <h1>
+            <span class="glyphicon glyphicon-qrcode" style="color: #B5B5B5;"></span>
+            诗词密码生成器/骰子密码生成器
+        </h1>
+        <div class="well well-sm">
+            密码生成器：
+            <ul>
+                <li>将诗词、格言、经典句子转换为密码（如：飞流直下三千尺   -&gt;  Flzx3000c）；</li>
+                <li>将汉字转换为拼音首字母（如：飞流直下  -&gt;  Flzx）；</li>
+                <li>将诗词中的中文数字转换为阿拉伯数字（如：三千 -&gt; 3000）；</li>
+                <li>将部分简单常用词替换为英文；</li>
+                <li>将部分字母替换为形似的符号（如 J@n. 代表一月）；</li>
+                <li>每个单句的首字母大写；</li>
+                <li>我们不生产无意义的乱码!只让密码满足强度要求，又变得有意义、有趣、好记!</li>
+                <li>如果未输入诗词，系统将通过掷骰子的方式从密码字典中提取单词并组合成密码!</li>
+            </ul>
+        </div>
+        <div>
+            <form class="form-horizontal" method="POST" role="form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="sentence" class="col-sm-2 control-label">助记诗词</label>
+                    <div class="input-group col-sm-9">
+                        <input type="text" class="form-control" name="sentence" placeholder="请输入助记诗词（或留空，让系统掷骰子自动生成）" value="{{ sentence }}">
+                        <span class="input-group-btn">
+                            <button type="submit" class="btn btn-default">生成密码</button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        {% if password %}
+            <form class="form-horizontal">
+            <div class="form-group">
+                <label for="sentence" class="col-sm-2 control-label">密码短语</label>
+                <div class="input-group col-sm-9">
+                    <input type="text" class="form-control" id="passphrase" value="{{ password }}">
+
+                </div>
+            </div>
+            </form>
+        {% endif %}
+        <div class="well well-sm">
+            密码生成举例：
+            <ul>
+                <li>娉娉袅袅十三余，豆蔻梢头二月初。（Ppnn13yDkstFeb.c）</li>
+                <li>飞流直下三千尺，疑似银河落九天。（Flzx3000cY4yhl9t）</li>
+                <li>池上碧苔三四点，叶底黄鹂一两声。（Csbt34.Ydhl12s）</li>
+                <li>一道残阳铺水中，半江瑟瑟半江红。（1dcypsz1/2jss1/2jh）</li>
+                <li>停车坐爱枫林晚，霜叶红于二月花。（Tcz@flwSyhyFeb.h）</li>
+                <li>竹外桃花三两枝，春江水暖鸭先知。（Zwth32zCjsnyxz）</li>
+                <li>毕竟西湖六月中，风光不与四时同。（BjxhJun.zFg!y4st）</li>
+                <li>白发三千丈，缘愁似个长。（Bf3000zYc4gc）</li>
+                <li>锄禾日当午，汗滴禾下土。（Chrd5Hdhxt）</li>
+                <li>春眠不觉晓，处处闻啼鸟。（Cm!jxCcwtn）</li>
+                <li>离离原上草，一岁一枯荣。（Llysc1s1kr）</li>
+                <li>不输入诗词，让系统自行掷骰子生成。（GivenBr0wnS@fety）</li>
+            </ul>
+        </div>
+        </div>
+        <div class="col-sm-3">
+        </div>
+    </div>
+{% endblock %}

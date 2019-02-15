@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}{{ product_type.name }}产品目录{% endblock %}
+{% block head_seo %}
+    <meta name="keywords" content="{{ product_type.name }},{{ product_type.name }}产品目录"/>
+    <meta name="description" content="提供网络安全业界{{ product_type.name }}产品的目录清单。"/>
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-sm-9" style="min-height: 300px;">
+            <div class="panel">
+                <h2><span class="glyphicon glyphicon-book" style="color: #9993EE;"> </span>{{ product_type.name }}产品目录</h2>
+                {% for product in products %}
+                    <div class="list-group-item">
+                    <div>
+                        <h3>{% if product.logo %}<img src="/media/{{ product.logo }}" style="height: 24px;width: auto;margin-bottom: 8px;" />{% endif %}{{ product.name }}</h3>
+                        <p>
+                            {{ product.description }}
+                        </p>
+                        <p>
+                            Keywords: {{ product.keywords }}
+                        </p>
+                    </div>
+                    {% if product.supplier %}
+                    <div>
+                        <a href="{{ product.get_website }}" target="_blank" style="font-size: 24px;">
+                            {% if product.supplier.logo %}
+                            <img src="/media/{{ product.supplier.logo }}" style="height: 24px;width: auto;margin-bottom: 8px;" />
+                            {% endif %}
+                            {{ product.supplier }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div>
+                返回到<a href="/catalog">安全产品目录</a>
+            </div>
+        </div>
+
+        <div class="col-sm-3">
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+<script>
+d3.select("#ISMSTab").attr("class", "active");
+</script>
+{% endblock %}

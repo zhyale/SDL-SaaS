@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}在线安全工具{% endblock %}
+{% block body %}
+
+    <div class="row">
+        <div class="col-sm-9">
+            <table class="table table-bordered">
+                <caption><h2>在线安全工具</h2></caption>
+                <tr>
+                    <th>工具</th>
+                    <th>描述</th>
+                </tr>
+                <tr>
+                    <td><a href="/reminds" target="_blank">定时邮件提醒（需要登录）</a></td>
+                    <td>通过电子邮件自动提醒例行任务（例会、周报、信用卡还款），域名或数字证书到期，重要会议等</td>
+                </tr>
+                <tr>
+                    <td><a href="/password/generator" target="_blank">密码生成器</a></td>
+                    <td>根据输入的助记诗词生成口令，或者通过掷骰子的方式自动生成口令</td>
+                </tr>
+                <tr>
+                    <td><a href="/tool/ip" target="_blank">IP地址查询</a></td>
+                    <td>根据输入的IP地址查询归属地</td>
+                </tr>
+
+            </table>
+        </div>
+        <div class="col-sm-3">
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,464 @@
+{% extends 'base.html' %}
+{% block title %}编辑-{{ project.name }}{% endblock %}
+{% block body %}
+
+<h2>编辑项目</h2>
+<div  ng-app="ngPEdit" ng-controller="ngPEditController">
+<form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" ng-submit="submit()" action="#">
+    {% csrf_token %}
+    <input type="hidden" name="pid" value="{{ project.id }}" />
+
+    <div class="form-group">
+      <label for="no" class="col-sm-2 control-label">所属团队</label>
+      <div class="col-sm-7">
+         <input type="text" class="form-control"  value="{{ project.team.name }}" readonly>
+      </div>
+   </div>
+   <div class="form-group">
+   <label for="no" class="col-sm-2 control-label">项目流程</label>
+   <div class="col-sm-7">
+     <input type="text" class="form-control"  value="{{ project.flow.name }}" readonly>
+   </div>
+</div>
+   {% verbatim %}
+   <div class="form-group">
+      <label for="no" class="col-sm-2 control-label">项目编号(*)</label>
+      <div class="col-sm-7">
+        <input type="text" class="form-control" id="no" name="no" ng-model="projectNo">
+      </div>
+   </div>
+
+   <div class="form-group">
+      <label for="name" class="col-sm-2 control-label">项目名称(*)</label>
+      <div class="col-sm-7">
+
+         <input type="text" class="form-control" name="name" ng-model="projectName">
+      </div>
+   </div>
+   <div class="form-group">
+      <label class="col-sm-2 control-label">项目经理(*)</label>
+      <div class="col-sm-7" >
+         <input type="hidden" name="manager_id" value="{{ manager.uid }}">
+         <input type="text" class="form-control" ng-model="manager.username"
+                style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                ng-style="ManagerBackImage" ng-change="SearchUsers('showAvailableManagers',manager.username)">
+         <div class="col-sm-7" ng-show="showAvailableManagers">
+         <ul class="list-group">
+             <li class="list-group-item" ng-repeat="user in availableUsers">
+                 <a href="#" ng-click="SelectUser(user,'showAvailableManagers','manager','ManagerBackImage',0)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+             </li>
+         </ul>
+         </div>
+      </div>
+   </div>
+   <div class="form-group">
+      <label class="col-sm-2 control-label">安全代表(*)</label>
+      <div class="col-sm-7" >
+         <input type="hidden" name="security_rep_id" value="{{ security_rep.uid }}">
+         <input type="text" class="form-control" ng-model="security_rep.username"
+                style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                ng-style="Security_repBackImage" ng-change="SearchUsers('showAvailableSecurity_reps',security_rep.username)">
+         <div class="col-sm-7" ng-show="showAvailableSecurity_reps">
+         <ul class="list-group">
+             <li class="list-group-item" ng-repeat="user in availableUsers">
+                 <a href="#" ng-click="SelectUser(user,'showAvailableSecurity_reps','security_rep','Security_repBackImage',0)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+             </li>
+         </ul>
+         </div>
+      </div>
+       <span>对产品安全进行把关</span>
+   </div>
+
+   <div class="form-group">
+      <label class="col-sm-2 control-label">运维代表(*)</label>
+      <div class="col-sm-7" >
+         <input type="hidden" name="op_rep_id" value="{{ op_rep.uid }}">
+         <input type="text" class="form-control" ng-model="op_rep.username"
+                style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                ng-style="OP_repBackImage" ng-change="SearchUsers('showAvailableOP_reps',op_rep.username)">
+         <div class="col-sm-7" ng-show="showAvailableOP_reps">
+         <ul class="list-group">
+             <li class="list-group-item" ng-repeat="user in availableUsers">
+                 <a href="#" ng-click="SelectUser(user,'showAvailableOP_reps','op_rep','OP_repBackImage',0)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+             </li>
+         </ul>
+         </div>
+      </div>
+       <span>产品上线后运维负责人</span>
+   </div>
+
+   <div class="form-group">
+      <label for="members" class="col-sm-2 control-label" >项目成员</label>
+      <div class="col-sm-7">
+         <input type="text" id="member_keyword" class="form-control" ng-model="member_keyword" ng-change="SearchUsers('showAvailableMemberDiv',member_keyword)" placeholder="输入三个字母开始检索"/>
+         <div class="col-sm-7" ng-show="showAvailableMemberDiv">
+             <ul class="list-group">
+                 <li class="list-group-item" ng-repeat="user in availableUsers">
+                     <a href="#" ng-click="SelectMultiUsers(user,'members','showAvailableMemberDiv','member_keyword',100)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+                 </li>
+             </ul>
+         </div>
+         <div>
+             <div ng-repeat="member in members" class="col-sm-4 pull-left">
+                 <input type="hidden" name="members" value="{{ member.uid }}">
+                 <img ng-src="{{ member.avatar }}" width="20px" />
+                 <span class="label label-success">{{ member.username }}</span>
+                 <span class="glyphicon glyphicon-remove" ng-click="RemoveMultiUsers(member,'members')"></span>
+             </div>
+         </div>
+      </div>
+    </div>
+{% endverbatim %}
+   <div class="form-group">
+      <label for="objective" class="col-sm-2 control-label">项目目标</label>
+      <div class="col-sm-7">
+         <textarea class="form-control" name="objective" placeholder="项目要解决什么问题，达到什么目标。" rows="3">{{ project.objective }}</textarea>
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="introduction" class="col-sm-2 control-label">项目简介</label>
+      <div class="col-sm-7">
+         <textarea class="form-control" name="introduction" placeholder="项目或方案简介，拟如何解决。" rows="6">{{ project.introduction }}</textarea>
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="plan_start_date" class="col-sm-2 control-label">计划启动日期</label>
+      <div class="col-sm-7">
+         <div class="input-group date">
+             <input type="text" class="form-control" name="plan_start_date" value="{{ project.plan_start_date | date:'Y-m-d' }}">
+             <span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+         </div>
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="plan_end_date" class="col-sm-2 control-label">计划完成日期</label>
+      <div class="col-sm-7">
+          <div class="input-group date">
+             <input type="text" class="form-control" name="plan_end_date" value="{{ project.plan_end_date | date:'Y-m-d' }}">
+             <span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+          </div>
+      </div>
+   </div>
+    <div class="form-group">
+      <label for="mandays" class="col-sm-2 control-label">计划人天数</label>
+      <div class="col-sm-7">
+            <input type="text" class="form-control" name="mandays" value="{{ project.mandays }}">
+      </div>
+   </div>
+       <div class="form-group">
+      <label for="manday_cost" class="col-sm-2 control-label">平均人天成本</label>
+      <div class="col-sm-7">
+         <input type="text" class="form-control" name="manday_cost" value="{{ project.manday_cost }}">
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="currency_unit" class="col-sm-2 control-label">货币单位</label>
+      <div class="col-sm-7">
+         <input type="text" class="form-control" name="currency_unit" value="{{ project.currency_unit }}">
+      </div>
+   </div>
+
+   {% verbatim %}
+   <div class="form-group">
+      <label class="col-sm-2 control-label">Sponsor(*)</label>
+      <div class="col-sm-7" >
+         <input type="hidden" name="sponsor_id" value="{{ sponsor.uid }}">
+         <input type="text" class="form-control" ng-model="sponsor.username"
+                style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                ng-style="SponsorBackImage" ng-change="SearchUsers('showAvailableSponsors',sponsor.username)">
+         <div class="col-sm-7" ng-show="showAvailableSponsors">
+         <ul class="list-group">
+             <li class="list-group-item" ng-repeat="user in availableUsers">
+                 <a href="#" ng-click="SelectUser(user,'showAvailableSponsors','sponsor','SponsorBackImage',700)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+             </li>
+         </ul>
+         </div>
+      </div>
+      <span>对人力/物力/预算拥有决策权的人</span>
+   </div>
+
+   <div class="form-group">
+      <label class="col-sm-2 control-label">业务代表(*)</label>
+      <div class="col-sm-7" >
+         <input type="hidden" name="business_rep_id" value="{{ business_rep.uid }}">
+         <input type="text" class="form-control" ng-model="business_rep.username"
+                style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                ng-style="Biz_repBackImage" ng-change="SearchUsers('showAvailableBiz_reps',business_rep.username)">
+         <div class="col-sm-7" ng-show="showAvailableBiz_reps">
+         <ul class="list-group">
+             <li class="list-group-item" ng-repeat="user in availableUsers">
+                 <a href="#" ng-click="SelectUser(user,'showAvailableBiz_reps','business_rep','Biz_repBackImage',750)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+             </li>
+         </ul>
+         </div>
+      </div>
+       <span>确认需求的人</span>
+   </div>
+
+   <div class="form-group">
+      <label class="col-sm-2 control-label">项目主审(*)</label>
+      <div class="col-sm-7" >
+         <input type="hidden" name="chief_reviewer_id" value="{{ chief_reviewer.uid }}">
+         <input type="text" class="form-control" ng-model="chief_reviewer.username"
+                style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                ng-style="Chief_reviewerBackImage" ng-change="SearchUsers('showAvailableChief_reviewers',chief_reviewer.username)">
+         <div class="col-sm-7" ng-show="showAvailableChief_reviewers">
+         <ul class="list-group">
+             <li class="list-group-item" ng-repeat="user in availableUsers">
+                 <a href="#" ng-click="SelectUser(user,'showAvailableChief_reviewers','chief_reviewer','Chief_reviewerBackImage',800)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+             </li>
+         </ul>
+         </div>
+      </div>
+       <span>技术评审活动负责人</span>
+   </div>
+
+   <div class="form-group">
+      <label class="col-sm-2 control-label">同行代表(*)</label>
+      <div class="col-sm-7" >
+         <input type="hidden" name="peer_reviewer_id" value="{{ peer_reviewer.uid }}">
+         <input type="text" class="form-control" ng-model="peer_reviewer.username"
+                style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                ng-style="Peer_reviewerBackImage" ng-change="SearchUsers('showAvailablePeer_reviewers',peer_reviewer.username)">
+         <div class="col-sm-7" ng-show="showAvailablePeer_reviewers">
+         <ul class="list-group">
+             <li class="list-group-item" ng-repeat="user in availableUsers">
+                 <a href="#" ng-click="SelectUser(user,'showAvailablePeer_reviewers','peer_reviewer','Peer_reviewerBackImage',850)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+             </li>
+         </ul>
+         </div>
+      </div>
+       <span>领域内专家，参与同行评审</span>
+   </div>
+
+   <div class="form-group">
+      <label class="col-sm-2 control-label">采购代表</label>
+      <div class="col-sm-7" >
+         <input type="hidden" name="purchasing_rep_id" value="{{ purchasing_rep.uid }}">
+         <input type="text" class="form-control" ng-model="purchasing_rep.username"
+                style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                ng-style="Purchasing_repBackImage" ng-change="SearchUsers('showAvailablePurchasing_reps',purchasing_rep.username)">
+         <div class="col-sm-7" ng-show="showAvailablePurchasing_reps">
+         <ul class="list-group">
+             <li class="list-group-item" ng-repeat="user in availableUsers">
+                 <a href="#" ng-click="SelectUser(user,'showAvailablePurchasing_reps','purchasing_rep','Purchasing_repBackImage',900)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+             </li>
+         </ul>
+         </div>
+      </div>
+       <span>选型阶段采购负责人</span>
+   </div>
+
+   <div class="form-group">
+      <label class="col-sm-2 control-label">用户代表(*)</label>
+      <div class="col-sm-7" >
+         <input type="hidden" name="user_rep_id" value="{{ user_rep.uid }}">
+         <input type="text" class="form-control" ng-model="user_rep.username"
+                style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                ng-style="User_repBackImage" ng-change="SearchUsers('showAvailableUser_reps',user_rep.username)">
+         <div class="col-sm-7" ng-show="showAvailableUser_reps">
+         <ul class="list-group">
+             <li class="list-group-item" ng-repeat="user in availableUsers">
+                 <a href="#" ng-click="SelectUser(user,'showAvailableUser_reps','user_rep','User_repBackImage',1000)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+             </li>
+         </ul>
+         </div>
+      </div>
+       <span>以最终用户的身份对交付的产品/服务进行检验</span>
+   </div>
+
+   <div class="form-group">
+      <label class="col-sm-2 control-label">QA(*)</label>
+      <div class="col-sm-7" >
+         <input type="hidden" name="qa_id" value="{{ qa.uid }}">
+         <input type="text" class="form-control" ng-model="qa.username"
+                style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                ng-style="QABackImage" ng-change="SearchUsers('showAvailableQAs',qa.username)">
+         <div class="col-sm-7" ng-show="showAvailableQAs">
+         <ul class="list-group">
+             <li class="list-group-item" ng-repeat="user in availableUsers">
+                 <a href="#" ng-click="SelectUser(user,'showAvailableQAs','qa','QABackImage',1050)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+             </li>
+         </ul>
+         </div>
+      </div>
+       <span>来自项目管理办公室，提供流程辅导</span>
+   </div>
+
+   <div class="form-group">
+      <label class="col-sm-2 control-label">QC(*)</label>
+      <div class="col-sm-7" >
+         <input type="hidden" name="qc_id" value="{{ qc.uid }}">
+         <input type="text" class="form-control" ng-model="qc.username"
+                style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                ng-style="QCBackImage" ng-change="SearchUsers('showAvailableQCs',qc.username)">
+         <div class="col-sm-7" ng-show="showAvailableQCs">
+         <ul class="list-group">
+             <li class="list-group-item" ng-repeat="user in availableUsers">
+                 <a href="#" ng-click="SelectUser(user,'showAvailableQCs','qc','QCBackImage',1100)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+             </li>
+         </ul>
+         </div>
+      </div>
+       <span>来自项目管理办公室，质量控制，检查运作规范度，进行度量</span>
+   </div>
+
+   <div class="form-group">
+      <label for="stakeholders" class="col-sm-2 control-label" >干系人(可选)</label>
+      <div class="col-sm-7">
+         <input type="text" id="stakeholder_keyword" class="form-control" ng-model="stakeholder_keyword" ng-change="SearchUsers('showAvailableStakeholderDiv',stakeholder_keyword)" placeholder="输入三个字母开始检索"/>
+         <div class="col-sm-7" ng-show="showAvailableStakeholderDiv">
+             <ul class="list-group">
+                 <li class="list-group-item" ng-repeat="user in availableUsers">
+                     <a href="#" ng-click="SelectMultiUsers(user,'stakeholders','showAvailableStakeholderDiv','stakeholder_keyword', 1200)"><img ng-src="{{ user.avatar }}" width="30px" />{{ user.username }} {{ user.email }}</a>
+                 </li>
+             </ul>
+         </div>
+         <div>
+             <div ng-repeat="stakeholder in stakeholders" class="col-sm-4 pull-left">
+                 <input type="hidden" name="stakeholders" value="{{ stakeholder.uid }}">
+                 <img ng-src="{{ stakeholder.avatar }}" width="20px" />
+                 <span class="label label-success">{{ stakeholder.username }}</span>
+                 <span class="glyphicon glyphicon-remove" ng-click="RemoveMultiUsers(stakeholder,'stakeholders')"></span>
+             </div>
+         </div>
+      </div>
+      <span>项目报告抄送给这些人员</span>
+    </div>
+
+{% endverbatim %}
+
+
+    <div class="form-group">
+      <label for="hardware_cost" class="col-sm-2 control-label">硬件预算</label>
+      <div class="col-sm-7">
+         <input type="text" class="form-control" name="hardware_cost" value="{{ project.hardware_cost }}">
+      </div>
+      <span>服务器、存储或其它设备的预算</span>
+    </div>
+
+    <div class="form-group">
+      <label for="software_cost" class="col-sm-2 control-label">软件预算</label>
+      <div class="col-sm-7">
+         <input type="text" class="form-control" name="software_cost" value="{{ project.software_cost }}">
+      </div>
+      <span>采购软件包及第一年授权的预算</span>
+    </div>
+
+    <div class="form-group">
+      <label for="other_cost" class="col-sm-2 control-label">其它预算</label>
+      <div class="col-sm-7">
+         <input type="text" class="form-control" name="other_cost" value="{{ project.other_cost }}">
+      </div>
+      <span>其它一次性的预算</span>
+    </div>
+
+    <div class="form-group">
+      <label for="annual_license_cost" class="col-sm-2 control-label">年度License费用</label>
+      <div class="col-sm-7">
+         <input type="text" class="form-control" name="annual_license_cost" value="{{ project.annual_license_cost }}">
+      </div>
+      <span>预估的每年例行支出，不属于项目内预算，属于运维成本，供决策参考</span>
+    </div>
+
+    <div class="form-group">
+      <label for="other_annual_cost" class="col-sm-2 control-label">年度其它费用</label>
+      <div class="col-sm-7">
+         <input type="text" class="form-control" name="other_annual_cost" value="{{ project.other_annual_cost }}">
+      </div>
+      <span>预估的每年例行支出（硬件维保等），不属于项目内预算，属于运维成本，供决策参考</span>
+    </div>
+
+   <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-4">
+         <button type="submit" class="btn btn-default">提交</button>
+         &nbsp;&nbsp;&nbsp;&nbsp;<a href="/projectlist/{{ project.id }} ">取消</a>
+      </div>
+   </div>
+</form>
+
+</div>
+{% endblock %}
+{% block script %}
+<script src="/static/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script src="/static/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+<script type="text/javascript">
+$('.input-group.date').datepicker({
+    format: "yyyy-mm-dd",
+    autoclose: true,
+    todayHighlight: true
+});
+var app=angular.module("ngPEdit",[]);
+app.controller("ngPEditController",function($scope,$http){
+    $scope.teamname="{{ project.team.name }}";
+    $scope.projectNo="{{ project.no }}";
+    $scope.projectName="{{ project.name }}";
+    $scope.manager={'uid':{{ project.manager.id }},'username':'{{ project.manager.username }}','avatar':'{{ project.manager.display_avatar_link }}'};
+    $scope.security_rep={'uid':{{ project.security_rep.id }},'username':'{{ project.security_rep.username }}','avatar':'{{ project.security_rep.display_avatar_link }}'};
+    $scope.op_rep={'uid':{{ project.op_rep.id }},'username':'{{ project.op_rep.username }}','avatar':'{{ project.op_rep.display_avatar_link }}'};
+    $scope.sponsor={'uid':{{ project.sponsor.id }},'username':'{{ project.sponsor.username }}','avatar':'{{ project.sponsor.display_avatar_link }}'};
+    $scope.business_rep={'uid':{{ project.business_rep.id }},'username':'{{ project.business_rep.username }}','avatar':'{{ project.business_rep.display_avatar_link }}'};
+    $scope.chief_reviewer={'uid':{{ project.chief_reviewer.id }},'username':'{{ project.chief_reviewer.username }}','avatar':'{{ project.chief_reviewer.display_avatar_link }}'};
+    $scope.user_rep={'uid':{{ project.user_rep.id }},'username':'{{ project.user_rep.username }}','avatar':'{{ project.user_rep.display_avatar_link }}'};
+    $scope.peer_reviewer={'uid':{{ project.peer_reviewer.id }},'username':'{{ project.peer_reviewer.username }}','avatar':'{{ project.peer_reviewer.display_avatar_link }}'};
+    $scope.purchasing_rep={'uid':{{ project.purchasing_rep.id }},'username':'{{ project.purchasing_rep.username }}','avatar':'{{ project.purchasing_rep.display_avatar_link }}'};
+    $scope.qa={'uid':{{ project.qa.id }},'username':'{{ project.qa.username }}','avatar':'{{ project.qa.display_avatar_link }}'};
+    $scope.qc={'uid':{{ project.qc.id }},'username':'{{ project.qc.username }}','avatar':'{{ project.qc.display_avatar_link }}'};
+    $scope.ManagerBackImage={"background-image": "url("+$scope.manager.avatar+")"};
+    $scope.Security_repBackImage={"background-image": "url("+$scope.security_rep.avatar+")"};
+    $scope.OP_repBackImage={"background-image": "url("+$scope.op_rep.avatar+")"};
+    $scope.SponsorBackImage={"background-image": "url("+$scope.sponsor.avatar+")"};
+    $scope.Biz_repBackImage={"background-image": "url("+$scope.business_rep.avatar+")"};
+    $scope.Chief_reviewerBackImage={"background-image": "url("+$scope.chief_reviewer.avatar+")"};
+    $scope.User_repBackImage={"background-image": "url("+$scope.user_rep.avatar+")"};
+    $scope.Peer_reviewerBackImage={"background-image": "url("+$scope.peer_reviewer.avatar+")"};
+    $scope.Purchasing_repBackImage={"background-image": "url("+$scope.purchasing_rep.avatar+")"};
+    $scope.QABackImage={"background-image": "url("+$scope.qa.avatar+")"};
+    $scope.QCBackImage={"background-image": "url("+$scope.qc.avatar+")"};
+    $scope.members=[];
+    {% for member in project.members.all %}
+        _member={"uid": {{ member.id }}, "username":"{{ member.username }}", "avatar":"{{ member.display_avatar_link }}"};
+        $scope.members.push(_member);
+    {% endfor %}
+    $scope.stakeholders=[];
+    {% for stakeholder in project.stakeholders.all %}
+        _stakeholder={"uid": {{ stakeholder.id }}, "username":"{{ stakeholder.username }}", "avatar":"{{ stakeholder.display_avatar_link }}"};
+        $scope.stakeholders.push(_stakeholder);
+    {% endfor %}
+    $scope.SearchUsers=function(isShow,keyword){
+        if(keyword.length<3) return;
+        var url="/searchusers?s="+keyword;
+        $http.get(url).success(function(response){
+                $scope[isShow]=true;
+                $scope.availableUsers=response;
+        });
+    };
+    $scope.SelectUser=function(user, showDiv, role, backImage, offsetY){
+        $scope[role]=user;
+        $scope[backImage]={"background-image": "url("+user.avatar+")"};
+        $scope[showDiv]=false;
+        $('html,body').animate({scrollTop: offsetY}, "slow");
+    };
+
+
+    $scope.Contains=function(users,user){
+        for(x in users){
+            if(users[x].uid == user.uid) return true;
+        }
+        return false;
+    };
+    $scope.SelectMultiUsers=function(user,group,showDiv,searchInput,offsetY){
+        if(!$scope.Contains($scope[group],user))  $scope[group].push(user);
+        $scope[showDiv]=false;
+        $scope[searchInput]="";
+        $('html,body').animate({scrollTop: offsetY}, "slow");
+    };
+    $scope.RemoveMultiUsers=function(user,group){
+        $scope[group]=$scope[group].filter(function(obj){
+            return obj.uid != user.uid;
+        });
+    };
+});
+
+</script>
+{% endblock %}

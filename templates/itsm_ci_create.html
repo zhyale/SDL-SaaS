@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}创建CI{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-sm-9">
+            <div class="alert alert-info">
+                填写注意事项：
+                <ul>
+                    <li>CI（Configuration Item，配置项）名称，请设置为唯一的名称；</li>
+                    <li>格式举例：JAN-NGX-001 ，JAN为公司缩写，NGX为Nginx缩写，001为序号；</li>
+                    <li>格式举例：PEKAPPWEB01 ，PEK为北京，APP为应用名，WEB表示Web服务，01为序号；</li>
+                </ul>
+            </div>
+            <form class="form-horizontal" method="POST" action="/itsm/ci/create">
+                {% csrf_token %}
+                <div class="form-group">
+                        <label for="category" class="col-sm-1 control-label">CI类型</label>
+                        <div class="col-sm-11">
+                            <input type="hidden" class="form-control" name="category" value="{{ category }}">
+                            <input type="text" class="form-control" id="category" value="{{ category_display }}" readonly>
+                        </div>
+                    </div>
+                <fieldset>
+                    <legend>必填信息</legend>
+                    <div class="form-group">
+                        <label for="name" class="col-sm-1 control-label">CI名称</label>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" name="name" placeholder="请输入CI唯一标识" value="{{ current_user.company.abbr }}-XXX-00X">
+                        </div>
+                        <label for="description" class="col-sm-1 control-label">CI状态</label>
+                        <div class="col-sm-5">
+                            <select class="form-control" name="status">
+                                {% for value,label in status_choices %}
+                                    <option value="{{ value }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description" class="col-sm-1 control-label">CI描述</label>
+                        <div class="col-sm-11">
+                            <input type="text" class="form-control" name="description" placeholder="请描述该CI用途（重要，用于搜索查询）">
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset>
+                    <legend>选填信息</legend>
+                    <div class="form-group">
+                        <label for="domains" class="col-sm-1 control-label">CI域名</label>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" name="domains" placeholder="多个域名请使用一个或多个空格分隔">
+                        </div>
+                        <label for="ips" class="col-sm-1 control-label">IP地址</label>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" name="ips" placeholder="多个IP请使用一个或多个空格分隔">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="ports" class="col-sm-1 control-label">端口号</label>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" name="ports" placeholder="例如：80, 443">
+                        </div>
+                    </div>
+                </fieldset>
+            {% if additional_fields %}
+                <fieldset>
+                    <legend>【{{ category_display }}】特定信息</legend>
+                    {% for field in additional_fields %}
+                    <div class="form-group">
+                        <label for="{{ field.name }}" class="col-sm-3 control-label">{{ field.verbose_name }}</label>
+                        <div class="col-sm-6">
+                            {% if field.options %}
+                                <select class="form-control" name="{{ field.name }}">
+                                {% for option in field.options %}
+                                    <option value="{{ option.id }}">{{ option.description }}</option>
+                                {% endfor %}
+                                </select>
+                            {% else %}
+                                <input type="text" class="form-control" name="{{ field.name }}">
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </fieldset>
+            {% endif %}
+                <fieldset>
+                    <div class="form-group">
+                        <div class="col-sm-offset-4">
+                            <input type="submit" value="添加配置项(CI)">
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <div class="col-sm-3">
+        </div>
+    </div>
+{% endblock %}

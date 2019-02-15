@@ -1,0 +1,107 @@
+.pageblock{
+    margin-top: 5px;
+    background-color: #F9F9F9;
+    border-radius: 5px;
+}
+
+.pageblock a{
+    color: #4c4e4d;
+}
+
+.pageblock a:hover{
+    text-decoration:none;
+    color: #ff0000;
+}
+
+
+.projectblock{
+    margin-top: 4px;
+    background-color: #9acfea;
+    border-radius: 10px;
+}
+
+.projectblock a{
+    color: #4c4e4d;
+}
+
+.projectblock a:hover{
+    text-decoration:none;
+    color: #ff0000;
+}
+
+.taskblock{
+    margin-top: 4px;
+    background-color: #b2dba1;
+    border-radius: 10px;
+}
+
+.taskblock a{
+    color: #4c4e4d;
+}
+
+.taskblock a:hover{
+    text-decoration:none;
+    color: #ff0000;
+}
+
+.teamblock {
+    margin-top: 4px;
+    background-color: #f7ca77;
+    border-radius: 10px;
+}
+
+.teamblock a{
+    color: #4c4e4d;
+}
+
+.teamblock a:hover{
+    text-decoration:none;
+    color: #ff0000;
+}
+
+.messageblock {
+    margin-top: 10px;
+    background-color: #EDF3FE;
+}
+
+.circlemessageblock {
+    margin-top: 10px;
+    background-color: #EDF3FE;
+    border-radius: 10px;
+}
+
+.defaultTeam {
+    color: #3c763d;
+    padding-top: 8px;
+    padding-left: 12px;
+}
+
+.silverblock {
+    background-color: #EDF3FE;
+}
+
+
+.smallavatar {
+    border-radius: 5px;
+    width: 25px;
+    height: 25px;
+}
+
+.frontphase {
+    border-radius: 10px;
+    background-color: #C9EDF7;
+    padding-left: 10px;
+}
+
+.frontkcp {
+    border-radius: 10px;
+    background-color: #DFF0D8;
+    padding-left: 10px;
+    margin: 2px;
+}
+
+.remindblock{
+    margin-top: 4px;
+    background-color: #C0C0C0;
+    border-radius: 5px;
+}

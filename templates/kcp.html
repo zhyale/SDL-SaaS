@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+{% block title %}安全流程规范{% endblock %}
+{% block head_seo %}
+    <meta name="keywords" content="{{ page.keywords }}" />
+    <meta name="description" content="{{ page.description }}"/>
+{% endblock %}
+{% block body %}
+<div class="row">
+<div class="col-sm-9">
+<div>
+    <h2>安全内控项目管理流程规范-KCP设置</h2>
+    <div class="alert alert-success">
+    本平台在新建项目时，将使用如下规范设置KCP任务：<br/>
+    </div>
+</div>
+
+
+<div>
+<h3>精简安全内控项目管理流程</h3>
+<table class="table table-bordered">
+    <tr>
+        <td>项目阶段</td><td>KCP任务</td><td>说明</td>
+    </tr>
+    <tr>
+        <td rowspan="3" style="vertical-align: middle;">
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            开发测试阶段</td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            安全设计自检</td>
+        <td>检查系统方案设计是否与安全设计规范或业界最佳安全实践一致</td>
+    </tr>
+    <tr>
+        <td><span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            安全开发自检
+        </td>
+        <td>检查编码是否为安全的最佳实践</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            安全测试自检
+        </td>
+        <td>基于安全测试用例的测试，以及渗透测试等</td>
+    </tr>
+    <tr>
+        <td rowspan="2" style="vertical-align: middle;">
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            发布实施阶段</td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            安全部署自检
+        </td>
+        <td>检查发布实施过程是否与安全部署规范一致，是否完成服务器安全配置、修改口令等动作</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            验收
+        </td>
+        <td>检查CMDB维护、备份、恢复演练、服务状态监控等任务是否完成</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            运维阶段
+        </td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>
+</div>
+
+
+<div>
+<h3>应用开发安全内控项目管理流程</h3>
+<table class="table table-bordered">
+    <tr>
+        <td>项目阶段</td><td>KCP任务</td><td>说明</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: middle;">
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            立项规划阶段</td>
+        <td></td>
+        <td>项目章程(Charter)融合到项目立项规划阶段直接由Sponsor审批；<br/>
+            Sponsor批准立项即完成对项目经理的授权。</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            需求分析阶段
+        </td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            需求确认</td>
+        <td>由业务代表确认项目组和业务对需求的理解一致</td>
+    </tr>
+    <tr>
+        <td rowspan="2" style="vertical-align: middle;">
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            概要设计阶段
+        </td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            安全设计自检</td>
+        <td>检查系统方案设计是否与安全设计规范或业界最佳安全实践一致</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            方案设计评审自检
+        </td>
+        <td>检查系统方案设计是否与业界最佳实践一致</td>
+    </tr>
+    <tr>
+        <td rowspan="3" style="vertical-align: middle;">
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            开发测试阶段</td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            安全开发自检
+            </td>
+        <td>检查编码是否为安全的最佳实践</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            安全测试自检
+        </td>
+        <td>基于安全测试用例的测试，以及渗透测试等</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            上线/发布评审自检
+        </td>
+        <td>检查上线前必要的工作交付（实施方案、测试报告、产品手册等）</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            产品发布阶段</td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            安全部署自检
+        </td>
+        <td>检查发布实施过程是否与安全部署规范一致，是否完成服务器安全配置、修改口令等动作</td>
+    </tr>
+
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            验收阶段</td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            验收
+        </td>
+        <td>检查CMDB维护、备份、恢复演练、服务状态监控等任务是否完成</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            运维阶段
+        </td>
+        <td></td>
+        <td></td>
+    </tr>
+
+</table>
+</div>
+
+
+<div>
+<h3>外购软件包实施安全内控项目管理流程</h3>
+<table class="table table-bordered">
+    <tr>
+        <td>项目阶段</td><td>KCP任务</td><td>说明</td>
+    </tr>
+    <tr>
+        <td style="vertical-align: middle;">
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            立项规划阶段</td>
+        <td></td>
+        <td>项目章程(Charter)融合到项目立项规划阶段直接由Sponsor审批；<br/>
+            Sponsor批准立项即完成对项目经理的授权。</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            需求分析阶段
+        </td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            需求确认</td>
+        <td>由业务代表确认项目组和业务对需求的理解一致</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            选型阶段
+        </td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            选型自检</td>
+        <td>检查选型过程是否符合正常的采购原则</td>
+    </tr>
+    <tr>
+        <td rowspan="2" style="vertical-align: middle;">
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            方案设计阶段
+        </td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            安全设计自检</td>
+        <td>检查系统方案设计是否与安全设计规范或业界最佳安全实践一致</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            方案设计评审自检
+        </td>
+        <td>检查系统方案设计是否与业界最佳实践一致</td>
+    </tr>
+    <tr>
+        <td rowspan="2" style="vertical-align: middle;">
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            验证测试阶段
+        </td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            安全测试自检
+        </td>
+        <td>基于安全测试用例的测试，以及渗透测试等</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            上线/发布评审自检
+        </td>
+        <td>检查上线前必要的工作交付（实施方案、测试报告、产品手册等）</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            产品实施阶段</td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            安全部署自检
+        </td>
+        <td>检查发布实施过程是否与安全部署规范一致，是否完成服务器安全配置、修改口令等动作</td>
+    </tr>
+
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            验收阶段</td>
+        <td>
+            <span class="glyphicon glyphicon-tasks" style="color: #b2dba1;"> </span>
+            验收
+        </td>
+        <td>检查CMDB维护、备份、恢复演练、服务状态监控等任务是否完成</td>
+    </tr>
+    <tr>
+        <td>
+            <span class="glyphicon glyphicon-pencil" style="color: #9acfea;"> </span>
+            运维阶段
+        </td>
+        <td></td>
+        <td></td>
+    </tr>
+
+</table>
+</div>
+
+</div>
+
+<div class="col-sm-3">
+
+</div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+d3.select("#ISMSTab").attr("class", "active");
+</script>
+{% endblock %}

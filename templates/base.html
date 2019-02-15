@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}{% endblock %} - 安全的项目管理</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% block head_seo %}
+        <meta name="keywords" content="安全内控,在线项目管理平台,安全开发流程"/>
+        <meta name="description" content="这是一个以安全内控为特色的在线项目管理平台（SDL SaaS）。"/>
+    {% endblock %}
+    <link href="//cdn.bootcss.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//cdn.bootcss.com/bootstrap-datetimepicker/3.1.3/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/pmp.css">
+    {% block head_link %}{% endblock %}
+</head>
+<body>
+<div class="container">
+    <div class="row">
+
+    <nav class="navbar navbar-default" role="navigation">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+                                    <span class="sr-only">Toggle navigation</span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                    <span class="icon-bar"></span>
+                                </button>
+        <a href="/" class="pull-left">
+            <img src="/static/images/logo.png" title="Janusec SDL SaaS" style="height: 50px;margin-top: 0px;" />
+        </a>
+        <a class="navbar-brand" href="/" title="安全开发流程，安全从源头开始, 贯穿产品生命周期始终!">
+            安全的项目管理
+        </a>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar-collapse">
+        <ul class="nav navbar-nav pull-left">
+            <li>
+                <a href="/" title="SDL SaaS">首页</a>
+            </li>
+            <li id="ProjectTab"><a href="/projectlist">项目管理</a></li>
+            <li id="TaskTab"><a href="/tasklist">任务管理</a></li>
+            <li id="TeamTab" class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">团队协作
+                    <span class="badge alert-success">{{ request.session.unviewed_msgs_count }}</span>
+                    <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="/msglist">
+                        消息<span class="badge alert-success">{{ request.session.unviewed_msgs_count }}</span></a>
+                    </li>
+                    <li class="divider"></li>
+                    <li><a href="/circle">工作圈</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/team">团队管理</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/wiki">知识管理(Wiki)</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/reminds">邮件提醒</a></li>
+                </ul>
+            </li>
+
+            <li id="ISMSTab" class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">安全管理<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/specifications">安全技术规范</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/kcp">安全流程规范</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/flowlist">安全流程管理</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/catalog">安全产品目录</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/tools">在线安全工具</a></li>
+                </ul>
+            </li>
+            <li id="ITSMTab" class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">ITSM<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/itsm/">ITSM导航</a></li>
+                    {% if current_user %}
+                    <li class="divider"></li>
+                    <li><a href="/itsm/configuration-management">配置管理</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/itsm/change-management">变更管理</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/itsm/event-management">事件管理</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/itsm/problem-management">问题管理</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/itsm/ip-management">IP地址管理</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/itsm/domain-management">域名管理</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li id="GuideTab" class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">关于<span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li>
+                        {% if request.is_secure %}
+                            <a href="http://saas.janusec.com/" title="HTTP不加密传输模式（速度优于HTTPS）">切换到HTTP快捷模式</a>
+                        {% else %}
+                            <a href="https://saas.janusec.com/" title="HTTPS加密传输模式">切换到HTTPS安全模式</a>
+                        {% endif %}
+                    </li>
+                    <li class="divider"></li>
+                    <li><a href="/term">术语</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/faq">FAQ</a></li>
+                {% comment %}
+                    <li class="divider"></li>
+                    <li><a href="/content/pricing">增值服务套餐</a></li>
+                {% endcomment %}
+                    <li class="divider"></li>
+                    <li><a href="/suggest">意见反馈</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/aboutus">关于我们</a></li>
+                </ul>
+            </li>
+        </ul>
+        <ul class="nav navbar-nav pull-right">
+            {% if current_user %}
+                <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" style="padding:12px;">
+                    <img src="{{ current_user.display_avatar_link }}" style="border-radius: 8px;width: 25px;height: 25px;" />
+                    <span> {{ current_user.username }} </span>
+                    <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/user/{{ current_user.id }}">我的资料</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/team">我的团队</a></li>
+                    <li class="divider"></li>
+                    <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> 退出</a></li>
+                </ul>
+                </li>
+            {% else %}
+                <li><a href="/signup">注册</a></li>
+                <li><a href="/login">登录</a></li>
+            {% endif %}
+        </ul>
+    </div>
+    </nav>
+    </div>
+
+    {% if messages %}
+        <div id="message_div" class="row alert alert-warning">
+        <div class="col-sm-11">
+            <ul>
+                {% for message in messages %}
+                <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col-sm-1">
+            <span class="close" onclick="RemoveMessageDiv()" title="Remove">&times;</span>
+        </div>
+        </div>
+    {% endif %}
+    {% block body %}{% endblock %}
+    <div class="row">
+        <hr/>
+        <p class="copyright">Copyright &copy;Janusec 2015 All Rights Reserved.</p>
+    </div>
+
+</div>
+<script src="//cdn.bootcss.com/jquery/2.1.4/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="//cdn.bootcss.com/angular.js/1.4.5/angular.min.js"></script>
+<script src="//cdn.bootcss.com/d3/3.5.6/d3.min.js"></script>
+{% block script %}
+{% endblock %}
+<script>
+function RemoveMessageDiv(){
+    d3.select("#message_div").remove();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block title %}我的产品团队{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-sm-9">
+
+            <div class="well well-sm">
+                <ul>
+                    <li>如果您是产品（产品线/项目群）负责人，或项目助理，或来自项目管理办公室，可建立并维护产品团队，产品团队名称的结尾不用输入【团队】两个字；</li>
+                    <li>产品团队缩写使用拼音首字母缩写或英文缩写，用于自动生成项目编号/序号；格式举例：JAN-CS （JAN表示Janusec公司，CS表示Cyber Security产品线，以两到三个字母为宜）；</li>
+                    <li>如希望加入公司已有团队，可发消息给该团队管理员或成员请求加入，成员也有权添加成员。</li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="panel col-sm-4">
+                    <h4>公司全部产品团队</h4>
+                    {% for team in company_teams %}
+                        <div class="list-group-item teamblock">
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <h5><a href="/team/{{ team.id }}" target="_blank">{{ team.name }}</a></h5>
+                                </div>
+                            </div>
+                            <div style="padding-top: 5px;">
+                                {% for member in team.members.all %}
+                                    <a href="/user/{{ member.id }}" target="_blank">
+                                        <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                             title="{{ member.username }} {{ member.email }}"/>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="panel col-sm-4">
+                    <h4>我管理的产品团队</h4>
+                    {% for team in admin_teams %}
+                        <div class="list-group-item teamblock">
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <h5><a href="/team/{{ team.id }}" target="_blank">{{ team.name }}</a></h5>
+                                </div>
+                                <div class="col-sm-3">
+                                    {% ifequal team current_user.default_team %}
+                                        <span class="glyphicon glyphicon-heart defaultTeam" title="默认团队"></span>
+                                    {% else %}
+                                        <form method="POST" enctype="multipart/form-data" action="/changeteam">
+                                            <input type="hidden" name="tid" value="{{ team.id }}"/>
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-link">
+                                                <span class="glyphicon glyphicon-heart-empty"
+                                                      style="color: #005500;padding-top: 1px;" title="设为默认"></span>
+                                            </button>
+                                        </form>
+                                    {% endifequal %}
+                                </div>
+                            </div>
+                            <div style="padding-top: 5px;">
+                                {% for member in team.members.all %}
+                                    <a href="/user/{{ member.id }}" target="_blank">
+                                        <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                             title="{{ member.username }} {{ member.email }}"/>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div style="margin-top: 10px;">
+                        <form method="POST" action="/teamcreate">
+                            <div class="input-group col-sm-12">
+                                <input type="text" name="name" placeholder="产品团队名称，如XXX产品" class="form-control" title="如果您是产品（产品线/项目群）负责人，或项目助理，或来自项目管理办公室，
+可建立并维护团队，团队名称的结尾不用输入【团队】两个字。">
+                            </div>
+                            <div class="col-sm-12 input-group">
+                                <input type="text" name="abbr" value="{{ current_user.company.abbr }}-XX"
+                                       class="form-control" title="拼音首字母缩写或英文缩写，用于自动生成项目编号/序号（如JAN-CS-001），格式举例：
+JAN-CS （JAN表示Janusec公司，CS表示Cyber Security产品线，以两到三个字母为宜）">
+                            </div>
+                            {% csrf_token %}
+                            <button type="submit" class="col-sm-12 btn btn-default">
+                                <span class="glyphicon glyphicon-plus-sign" style="color: #F7CA77;"></span> 创建团队
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="panel col-sm-4">
+                    <h4>我参与的产品团队</h4>
+                    {% for team in member_teams %}
+                        <div class="list-group-item teamblock">
+                            <div class="row">
+                                <div class="col-sm-9">
+                                    <h5><a href="/team/{{ team.id }}" target="_blank">{{ team.name }}</a></h5>
+                                </div>
+                                <div class="col-sm-3">
+                                    {% ifequal team current_user.default_team %}
+                                        <span class="glyphicon glyphicon-heart defaultTeam" title="默认团队"></span>
+                                    {% else %}
+                                        <form method="POST" enctype="multipart/form-data" action="/changeteam">
+                                            <input type="hidden" name="tid" value="{{ team.id }}"/>
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-link">
+                                                <span class="glyphicon glyphicon-heart-empty"
+                                                      style="color: #005500;padding-top: 1px;" title="设为默认"></span>
+                                            </button>
+                                        </form>
+                                    {% endifequal %}
+                                </div>
+                            </div>
+                            <div style="padding-top: 5px;">
+                                {% for member in team.members.all %}
+                                    <a href="/user/{{ member.id }}" target="_blank">
+                                        <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                             title="{{ member.username }} {{ member.email }}"/>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+
+            </div>
+
+        </div>
+        <div class="col-sm-3">
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        d3.select("#TeamTab").attr("class", "active");
+    </script>
+{% endblock %}

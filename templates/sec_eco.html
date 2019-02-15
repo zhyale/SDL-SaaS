@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}安全产品目录{% endblock %}
+{% block head_seo %}
+    <meta name="keywords" content="安全产品目录,网络安全产品,安全产品清单"/>
+    <meta name="description" content="安全产品目录为建立适应业务的立体防御体系提供选型参考。"/>
+{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-sm-9" style="min-height: 300px;">
+            <div class="panel">
+                <h2><span class="glyphicon glyphicon-book" style="color: #9993EE;"> </span>安全产品目录</h2>
+                {% for product_type in product_types %}
+                    <div class="list-group-item">
+                    <div>
+                        <h3><a href="/catalog/{{ product_type.pseudo_name }}">{{ product_type.name }}</a></h3>
+                    </div>
+                    <div>
+                        {{ product_type.description }}<br/>
+                    </div>
+                    {% if product_type.scene %}
+                    <div>
+                        使用场景： {{ product_type.scene }}<br/>
+                    </div>
+                    {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="list-group-item">
+                没有一款安全产品能够解决所有的安全问题，我们需要结合业务的特点来定制自己的立体防御体系；<br/>
+                在这个过程中，可能需要用到多种安全产品，安全产品目录可用于提供选型参考；<br/>
+                如希望收录贵公司企业安全产品，可<a href="/suggest">在此反馈意见</a> 。
+            </div>
+        </div>
+        <div class="col-sm-3">
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+<script>
+d3.select("#ISMSTab").attr("class", "active");
+</script>
+{% endblock %}

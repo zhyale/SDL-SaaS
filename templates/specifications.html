@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}安全规范参考 - 在线项目管理平台{% endblock %}
+{% block head_seo %}
+    <meta name="keywords" content="{{ page.keywords }}" />
+    <meta name="description" content="{{ page.description }}"/>
+{% endblock %}
+{% block body %}
+<div class="row">
+<div class="col-sm-9">
+<div class="alert alert-success">
+    本平台在自动添加的关键安全任务工作流中，将使用如下规范提醒进行安全自检：<br/>
+    自检过程完全在线化、流程化，放弃传统的文档附件或文档模板，提高工作效率；<br/>
+    部分条款会在设计、开发、测试、部署自检项中重复出现；<br/>
+    如果您认为存在重要的自检项遗漏，请<a href="/suggest">反馈</a>给我们，谢谢！
+</div>
+<div>
+<h2>安全设计规范(参考)</h2>
+<ul class="list-group">
+    {% for rule in design_rules %}
+        <li class="list-group-item">
+        <div class="row">
+            <div class="col-sm-10" style="background-color: #EDF3FE;">
+                <span class="glyphicon glyphicon-pushpin"></span> {{ rule.description }}
+            </div>
+            <div class="col-sm-2 text-center">
+                {% ifequal rule.product_type 'GEN' %}通用
+                {% else %}
+                    {% ifequal rule.product_type 'CLIENT' %}客户端{% endifequal %}
+                {% endifequal %}
+            </div>
+        </div>
+        </li>
+    {% endfor %}
+</ul>
+</div>
+
+<div>
+<h2>安全开发规范(参考)</h2>
+<ul class="list-group">
+    {% for rule in dev_rules %}
+        <li class="list-group-item">
+        <div class="row">
+            <div class="col-sm-10" style="background-color: #EDF3FE;">
+                <span class="glyphicon glyphicon-pushpin"></span> {{ rule.description }}
+            </div>
+            <div class="col-sm-2 text-center">
+                {% ifequal rule.product_type 'GEN' %}通用
+                {% else %}
+                    {% ifequal rule.product_type 'CLIENT' %}客户端{% endifequal %}
+                {% endifequal %}
+            </div>
+        </div>
+        </li>
+    {% endfor %}
+</ul>
+</div>
+
+<div>
+<h2>安全测试规范(参考)</h2>
+<ul class="list-group">
+    {% for rule in test_rules %}
+        <li class="list-group-item">
+        <div class="row">
+            <div class="col-sm-10" style="background-color: #EDF3FE;">
+                <span class="glyphicon glyphicon-pushpin"></span> {{ rule.description }}
+            </div>
+            <div class="col-sm-2 text-center">
+                {% ifequal rule.product_type 'GEN' %}通用
+                {% else %}
+                    {% ifequal rule.product_type 'CLIENT' %}客户端{% endifequal %}
+                {% endifequal %}
+            </div>
+        </div>
+        </li>
+    {% endfor %}
+</ul>
+</div>
+
+<div>
+<h2>安全部署规范(参考)</h2>
+<ul class="list-group">
+    {% for rule in deploy_rules %}
+        <li class="list-group-item">
+        <div class="row">
+            <div class="col-sm-10" style="background-color: #EDF3FE;">
+                <span class="glyphicon glyphicon-pushpin"></span> {{ rule.description }}
+            </div>
+            <div class="col-sm-2 text-center">
+                {% ifequal rule.product_type 'GEN' %}通用
+                {% else %}
+                    {% ifequal rule.product_type 'CLIENT' %}客户端{% endifequal %}
+                {% endifequal %}
+            </div>
+        </div>
+        </li>
+    {% endfor %}
+</ul>
+</div>
+</div>
+
+<div class="col-sm-3">
+
+</div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+d3.select("#ISMSTab").attr("class", "active");
+</script>
+{% endblock %}

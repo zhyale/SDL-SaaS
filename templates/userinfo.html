@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}{{ query_user.username }}-用户资料{% endblock %}
+{% block body %}
+{% if query_user %}
+<div class="row">
+<div class="col-sm-9">
+<table class="table table-bordered">
+    <caption>用户资料</caption>
+    <tr>
+    <td>头像</td>
+     <td><img src="{{ query_user.display_avatar_link }}" /></td>
+    </tr>
+    <tr>
+     <td>姓名拼音</td>
+     <td>{{ query_user.username }}</td>
+    </tr>
+    {% ifequal current_user query_user %}
+    <tr>
+     <td>昵称【仅自己可见】</td>
+     <td>{{ query_user.nickname | default:"" }}</td>
+    </tr>
+    {% endifequal %}
+    <tr>
+     <td>Email</td>
+     <td><a href="mailto:{{ query_user.email }}">{{ query_user.email }}</a></td>
+    </tr>
+    <tr>
+     <td>手机号码</td>
+     <td>{{ query_user.mobile | default:"" }}</td>
+    </tr>
+    <tr>
+     <td>部门名称</td>
+     <td>{{ query_user.department | default:"" }}</td>
+    </tr>
+    <tr>
+     <td>办公地点</td>
+     <td>{{ query_user.location | default:"" }}</td>
+    </tr>
+    <tr>
+     <td>签名档</td>
+     <td>{{ query_user.introduction | default:"" }}</td>
+    </tr>
+</table>
+
+{% ifequal query_user current_user %}
+    <div>
+    <a href="/useredit">修改我的资料</a>
+    </div>
+{% else %}
+    <div style="margin: 15px;">
+    <form action="/msglist" enctype="multipart/form-data" method="POST" class="form-row" role="form">
+    {% csrf_token %}
+    <input type="hidden" name="receiver_id" value="{{ query_user.id }}">
+    <div class="form-group">
+        <div class="input-group row">
+           <input class="form-control" name="msg" placeholder="发消息给他(她)">
+            <span class="input-group-btn"><button class="btn btn-default" type="submit">发送</button></span>
+        </div>
+    </div>
+    </form>
+    </div>
+
+{% endifequal %}
+</div>
+<div class="col-sm-3"></div>
+</div>
+{% endif %}
+{% endblock %}

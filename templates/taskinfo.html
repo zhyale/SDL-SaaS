@@ -1,0 +1,515 @@
+<div>
+    <div>
+        <h2 class="text-center">{{ task.name }}</h2>
+    </div>
+    <div>
+        <div style="background-color: #EDF3FE;">
+        <table class="table">
+            <tr>
+                <td class="col-sm-2">当 前 状 态 :</td>
+                <td>{{ task.status.description }}</td>
+            </tr>
+            <tr>
+                <td>当前处理人:</td>
+                <td>{% if task.current_handler %}
+                <a href="/user/{{ task.current_handler.id }}" target="_blank">
+                    <img src="{{ task.current_handler.display_avatar_link }}" width="25px"/>{{ task.current_handler }}
+                </a>
+            {% else %}N/A{% endif %}</td>
+            </tr>
+            <tr>
+                <td>所 属 项 目 :</td>
+                <td><a href="/projectlist/{{ task.project.id }}" target="_blank">{{ task.project }}</a></td>
+            </tr>
+        </table>
+        </div>
+    </div>
+
+
+    <div>
+        <table class="table">
+        {% if check_results %}
+        <form action="/checkresult" method="POST">
+        {% csrf_token %}
+            <tr>
+                <td class="col-sm-10">检查项(Checklist)</td>
+                <td>自检结果</td>
+            </tr>
+            {% for check_result in check_results %}
+                <tr>
+                    <td>
+                        <div id="CheckListDIV{{ check_result.id }}"
+                             style="background-color: {% ifequal check_result.result "YES" %}#00FF00;
+                             {% else %}
+                                 {% ifequal check_result.result "NO" %}#FF0000;
+                                 {% else %}
+                                     {% ifequal check_result.result "NA" %}#C0C0C0;
+                                     {% else %}#FFFF00;
+                                     {% endifequal %}
+                                 {% endifequal %}
+                             {% endifequal %}
+                                     padding: 5px; border-radius: 8px;">
+                            <span class="glyphicon glyphicon-check"></span>{{ check_result.check_item.description }}
+                        </div>
+                    </td>
+                    <td style="vertical-align: middle;">
+                        <div>
+                            <select name="result"
+                                    onchange="HandleCheckItem({{ check_result.id }}, this.value)">
+                                <option value="NONE">未检查</option>
+                                <option value="YES"{% ifequal check_result.result "YES" %}
+                                        selected="selected"{% endifequal %}>符合
+                                </option>
+                                <option value="NO"{% ifequal check_result.result "NO" %}
+                                        selected="selected"{% endifequal %}>不符合
+                                </option>
+                                <option value="NA"{% ifequal check_result.result "NA" %}
+                                        selected="selected"{% endifequal %}>不涉及
+                                </option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+        </form>
+        {% endif %}
+
+        <form action="/customcheckresult" method="POST">
+        {% csrf_token %}
+        <tr>
+            <td class="col-sm-10">自定义检查项</td>
+            <td>结果</td>
+        </tr>
+        {% for check_result in custom_check_results %}
+            <tr>
+                <td>
+                    <div id="CustomCheckListDIV{{ check_result.id }}"
+                         style="background-color: {% ifequal check_result.result "YES" %}#00FF00;
+                         {% else %}
+                             {% ifequal check_result.result "NO" %}#FF0000;
+                             {% else %}
+                                 {% ifequal check_result.result "NA" %}#C0C0C0;
+                                 {% else %}#FFFF00;
+                                 {% endifequal %}
+                             {% endifequal %}
+                         {% endifequal %}
+                                 padding: 5px; border-radius: 8px;">
+                        <span class="glyphicon glyphicon-check"></span>{{ check_result.check_item }}
+                    </div>
+                </td>
+                <td style="vertical-align: middle;">
+                    <div>
+                        <select name="result"
+                                onchange="HandleCustomCheckItem({{ check_result.id }}, this.value)">
+                            <option value="NONE">未完成</option>
+                            <option value="YES"{% ifequal check_result.result "YES" %}
+                                    selected="selected"{% endifequal %}>完成(OK)
+                            </option>
+                            <option value="NO"{% ifequal check_result.result "NO" %}
+                                    selected="selected"{% endifequal %}>无法完成
+                            </option>
+                            <option value="NA"{% ifequal check_result.result "NA" %}
+                                    selected="selected"{% endifequal %}>不涉及(作废)
+                            </option>
+                        </select>
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        <div id="custom_checklist_div"></div>
+        <tr>
+            <td colspan="2">
+                <div class="input-group col-sm-12">
+                    <input class="form-control" type="text" id="custom_check_item" name="check_item" placeholder="自定义Checklist或Todo内容">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-default" onclick="AddCustomCheckItem({{ task.id }})">
+                            添加检查项
+                        </button>
+                    </span>
+                </div>
+            </td>
+        </tr>
+        </form>
+        </table>
+
+    </div>
+
+
+    <div>
+
+        {% if need_review %}
+            <div class="alert alert-warning">
+                请检视任务处理情况并变更任务状态。<br/>
+                {% if task.is_kcp %}特别注意：本任务是系统自动添加的KCP（关键控制点）任务，如果未完成并通过复核，则项目无法进入下一阶段。{% endif %}
+            </div>
+            <form class="form-horizontal" role="form" action="/tflow" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="tid" value="{{ task.id }}"/>
+
+                <div class="form-group">
+                    <label for="no" class="col-sm-2 control-label">处理意见</label>
+
+                    <div class="col-sm-10">
+                        <select type="text" class="form-control" name="do" id="do" onchange="ReviewOptionChanged()">
+                            {% for option in task.status.status_options.all %}
+                                <option value="{{ option.do }}"{% ifequal option.do "APPROVE" %}
+                                        selected="selected"{% endifequal %}>{{ option.opinion }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                {% ifnotequal task.status.ready_state "TODO" %}
+                    <div id="actual_mandays_div">
+                        <div class="form-group">
+                            <label for="actual_mandays" class="col-sm-2 control-label">实际人天</label>
+
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="actual_mandays" name="actual_mandays"
+                                       value="{% if task.actual_mandays %}{{ task.actual_mandays }}{% else %}{{ task.plan_mandays }}{% endif %}">
+                            </div>
+                        </div>
+                    </div>
+                {% endifnotequal %}
+
+                <div class="form-group" hidden="hidden" id="trusteediv">
+                    <label for="trustee" class="col-sm-2 control-label">受委托人</label>
+
+                    <div class="col-sm-10" id="input_div_trustee">
+                        <input type="hidden" name="trustee_id" id="trustee_id">
+                        <input type="text" class="form-control" id="trustee"
+                               style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                               placeholder="输入姓名拼音三个字母后开始检索"
+                               oninput="SearchUsers('input_div_trustee','trustee','trustee_id')">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="opinion" class="col-sm-2 control-label">备注</label>
+
+                    <div class="col-sm-10">
+                    <textarea class="form-control" name="remarks" placeholder="添加备注（可选）"
+                              rows="3"></textarea>
+                    </div>
+                    <div class="col-sm-offset-2 col-sm-4">
+                        <button type="submit" class="btn btn-default">提交/备注</button>
+                    </div>
+                </div>
+            </form>
+            <hr/>
+
+        {% else %}
+            <div class="well well-sm">此任务暂不需要您处理
+                {% if task.project %}
+                    （属于[{{ task.done_in_project_phase.phase }}]任务）
+                {% endif %}。
+            </div>
+            {# 如果任务未结束，允许添加备注 #}
+            {% ifnotequal task.status.ready_state 'DONE' %}
+            <form class="form-horizontal" role="form" action="/tflow" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="tid" value="{{ task.id }}"/>
+
+                <div class="form-group">
+                    <label for="opinion" class="col-sm-2 control-label">备注</label>
+
+                    <div class="col-sm-10">
+                    <textarea class="form-control" name="remarks" placeholder="添加备注"
+                              rows="3"></textarea>
+                    </div>
+                    <div class="col-sm-offset-2 col-sm-4">
+                        <button type="submit" class="btn btn-default">添加备注</button>
+                    </div>
+                </div>
+            </form>
+            {% endifnotequal %}
+        {% endif %}
+    </div>
+
+
+    <div>
+        <div>
+            <a href="#" onclick="ToggleTaskDetail()" id="TaskDetailSwitch">
+                显示/隐藏任务详情
+            </a><span class="glyphicon glyphicon-chevron-down" style="color: rgb(255, 140, 60);"></span>
+            <br/><br/>
+        </div>
+        <div id="TaskDetail">
+            <table class="table">
+
+                <tr>
+                    <td class="col-sm-3">分配时间</td>
+                    <td>{{ task.assign_time|date:"Y-m-d H:i:s" }}</td>
+                </tr>
+                <tr>
+                    <td class="col-sm-3">任务名称</td>
+                    <td>{{ task.name }}</td>
+                </tr>
+                <tr>
+                    <td class="col-sm-3">任务详情</td>
+                    <td>{{ task.description }}</td>
+                </tr>
+
+                <tr>
+                    <td class="col-sm-3">任务流程</td>
+                    <td>{% if task.flow %}
+                        <a href="/flowlist/task/{{ task.flow.id }}" target="_blank">{{ task.flow }}</a>{% else %}
+                        无{% endif %}</td>
+                </tr>
+                <tr>
+                    <td class="col-sm-3">分配人</td>
+                    <td>
+                        {% if task.assigner %}
+                            <a href="/user/{{ task.assigner.id }}" target="_blank"><img
+                                    src="{{ task.assigner.display_avatar_link }}" width="25px"/>{{ task.assigner }}</a>
+                        {% else %}System{% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class="col-sm-3">负责人员</td>
+                    <td><a href="/user/{{ task.leader.id }}" target="_blank"><img
+                            src="{{ task.leader.display_avatar_link }}" width="25px"/>{{ task.leader }}</a></td>
+                </tr>
+
+                <tr>
+                    <td class="col-sm-3">任务成员</td>
+                    <td>
+                        <ul class="list-inline">
+                            {% for member in task.members.all %}
+                                <li class="list-group-item-success">
+                                <a href="/user/{{ member.id }}" target="_blank">
+                                    <img src="{{ member.display_avatar_link }}" width="25px"/>
+                                    {{ member }}
+                                </a>
+                                </li>
+                            {% endfor %}
+                            <li>
+                                <button type="button" class="btn btn-link" onclick="ShowAddMemberForm()">
+                                    <span class="glyphicon glyphicon-plus-sign" title="添加成员"></span>
+                                </button>
+                            </li>
+                        </ul>
+
+
+
+                        <form id="addmember_form" action="/addmember" method="POST" style="display: none;">
+                            {% csrf_token %}
+                            <div id="addmember_div">
+                                <input type="hidden" name="tid" value="{{ task.id }}">
+                                <input type="hidden" name="member_id" id="member_id">
+
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="member"
+                                           style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                                           oninput="SearchUsers('addmember_div','member','member_id')">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="submit">添加</button>
+                                    </span>
+                                </div>
+                            </div>
+                        </form>
+
+
+                    </td>
+                </tr>
+                {% ifequal task.flow.type "GEN" %}
+                <tr>
+                    <td class="col-sm-3">复核人员</td>
+                    <td><a href="/user/{{ task.reviewer.id }}" target="_blank"><img
+                            src="{{ task.reviewer.display_avatar_link }}" width="25px"/>{{ task.reviewer }}</a></td>
+                </tr>
+                {% endifequal %}
+                <tr>
+                    <td class="col-sm-3">计划人天</td>
+                    <td>{{ task.plan_mandays }}</td>
+                </tr>
+                <tr>
+                    <td class="col-sm-3">实际人天</td>
+                    <td>{{ task.actual_mandays }}</td>
+                </tr>
+
+                <tr>
+                    <td class="col-sm-3">是否KCP任务</td>
+                    <td>{% if task.is_kcp %}是{% else %}否{% endif %}</td>
+                </tr>
+
+                {% if task.is_subtask %}
+                    <tr>
+                        <td class="col-sm-3">主任务</td>
+                        <td>{{ task.parent_task }}</td>
+                    </tr>
+                {% endif %}
+                {% if task.project %}
+                    <tr>
+                        <td class="col-sm-3">所属项目</td>
+                        <td><a href="/projectlist/{{ task.project.id }}" target="_blank">{{ task.project }}</a></td>
+                    </tr>
+                    <tr>
+                        <td class="col-sm-3">最迟完成阶段</td>
+                        <td>{{ task.done_in_project_phase.phase }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td class="col-sm-3">最迟完成日期</td>
+                        <td>{{ task.deadline|date:"Y-m-d" }}</td>
+                    </tr>
+                {% endif %}
+                {% if task.done_time %}
+                <tr>
+                    <td class="col-sm-3">实际完成时间</td>
+                    <td>{{ task.done_time|date:"Y-m-d H:i:s" }}</td>
+                </tr>
+                {% endif %}
+            </table>
+            <div>
+                {% if can_be_deleted %}
+                    <br/><br/>
+                    <form action="/taskdel" method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="tid" value="{{ task.id }}">
+                        {% csrf_token %}
+                        <button type="submit" onclick="return confirm('确认删除该任务？删除后将不可恢复。')">删除此任务</button>
+                    </form>
+                {% endif %}
+                <br/>
+            </div>
+        </div>
+
+    </div>
+
+
+    <div>
+        任务日志纪录:
+        <ul class="list-group">
+            {% for approval in task.task_approvals.all %}
+                <li class="list-group-item">
+                    {{ approval.handle_time|date:"Y-m-d H:i:s" }}
+                    {% if approval.handler %} {{ approval.handler }} {% else %} System {% endif %}
+                    {% if approval.option %}
+                        {{ approval.option.opinion }}
+                        {% if approval.trustee %}
+                            &nbsp;&nbsp; to {{ approval.trustee }}
+                        {% endif %}
+                        &nbsp;&nbsp;&nbsp;&nbsp;补充意见/备注：
+                    {% endif %}
+                    {{ approval.remarks | default:"无" }}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+
+</div>
+
+<script type="text/javascript">
+    function ReviewOptionChanged() {
+        var do_value = document.getElementById('do').value;
+        var manday_div = document.getElementById("actual_mandays_div");
+        if (do_value == "TRANSFER") {
+            document.getElementById("trusteediv").hidden = false;
+            if (manday_div) manday_div.hidden = true;
+        }
+        else {
+            document.getElementById("trusteediv").hidden = true;
+            if (do_value == "APPROVE") {
+                if (manday_div) manday_div.hidden = false;
+            }
+            else {
+                if (manday_div) manday_div.hidden = true;
+            }
+        }
+    }
+
+    function ShowAddMemberForm() {
+        document.getElementById("addmember_form").style.display = "inline";
+    }
+
+    function SearchUsers(input_div, role, role_id) {
+        var keyword = $("#" + role).val();
+        if (keyword.length >= 3) {
+            d3.selectAll("#tempUserlist").remove();
+            $.get("/searchusers?s=" + keyword, function (data) {
+                var a = d3.select("#" + input_div)
+                        .append("ul")
+                        .attr("class", "list-group")
+                        .attr("id", "tempUserlist")
+                        .selectAll(".list-group-item")
+                        .data(data)
+                        .enter()
+                        .append("li").attr("class", "list-group-item")
+                        .append("a").attr("href", "#")
+                        .on("click", function (d) {
+                            d3.select("#" + role).property("value", d["username"]).style("background-image", "url(" + d["avatar"] + ")");
+                            d3.select("#" + role_id).property("value", d["uid"]);
+                            d3.selectAll("#tempUserlist").remove();
+                        });
+                a.append("img").attr("width", "25px").attr("src", function (d) {
+                    return d["avatar"];
+                });
+                a.append("span").text(function (d) {
+                    return d["username"] + " " + d["email"];
+                });
+            });
+        }
+    }
+
+    function HandleCheckItem(check_result_id, value) {
+        var token=document.getElementsByName("csrfmiddlewaretoken")[0].value;
+        $.post("/checkresult", {
+            csrfmiddlewaretoken: token,
+            result_id: check_result_id,
+            result: value
+        });
+        var div = d3.select("#CheckListDIV" + check_result_id);
+        switch (value) {
+            case "YES":
+                div.style("background-color", "#00FF00");
+                break;
+            case "NO":
+                div.style("background-color", "#FF0000");
+                break;
+            case "NA":
+                div.style("background-color", "#C0C0C0");
+                break;
+            default:
+                div.style("background-color", "#FFFF00");
+        }
+    }
+
+    function HandleCustomCheckItem(check_result_id, value) {
+        var token=document.getElementsByName("csrfmiddlewaretoken")[0].value;
+        $.post("/customcheckresult", {
+            csrfmiddlewaretoken: token,
+            result_id: check_result_id,
+            result: value
+        });
+        var div = d3.select("#CustomCheckListDIV" + check_result_id);
+        switch (value) {
+            case "YES":
+                div.style("background-color", "#00FF00");
+                break;
+            case "NO":
+                div.style("background-color", "#FF0000");
+                break;
+            case "NA":
+                div.style("background-color", "#C0C0C0");
+                break;
+            default:
+                div.style("background-color", "#FFFF00");
+        }
+    }
+
+    function AddCustomCheckItem(task_id){
+        var check_item=document.getElementById("custom_check_item").value;
+        var token=document.getElementsByName("csrfmiddlewaretoken")[0].value;
+        $.post("/customcheckresult", {
+            csrfmiddlewaretoken: token,
+            result_id: 0,
+            check_item: check_item,
+            task_id: task_id
+        }, function(response){
+            ShowTaskInfo({{ task.id }});
+        });
+    }
+
+    function ToggleTaskDetail() {
+        $("#TaskDetail").toggle();
+    }
+</script>

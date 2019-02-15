@@ -1,0 +1,382 @@
+{% if project %}
+<div>
+    <h2 class="text-center">{{ project.name }}</h2>
+</div>
+<div>
+     <div style="background-color: #EDF3FE;">
+        <table class="table">
+            <tr>
+                <td class="col-sm-2">项 目 阶 段 :</td>
+                <td>
+                    {{ project.phase.phase }}<br/>
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <div>
+                    {% with phases=project.flow.projectphase_set.all %}
+                    {% with current_phase_sort_no=project.phase.sort_no %}
+                        {% for phase in phases %}
+                            <div class="col-sm-3" style="border-radius: 20px;margin-top:1px; background-color: {% ifequal phase.sort_no current_phase_sort_no %}#55FE95;{% else %}#dddddd;{% endifequal %}">
+                            {{ phase.phase.name }}
+                            </div>
+                        {% endfor %}
+                    {% endwith %}
+                    {% endwith %}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>当 前 状 态 :</td>
+                <td>{{ project.status.get_status_display }} 【{{ project.status.description }}】</td>
+            </tr>
+            <tr>
+                <td>当前处理人:</td>
+                <td>
+                    {% if project.current_handler %}
+                     <a href="/user/{{ project.current_handler.id }}" target="_blank">
+                    <img src="{{ project.current_handler.display_avatar_link }}" style="border-radius: 5px;width: 25px;height: 25px;" />{{ project.current_handler }}</a>
+                     {% else %} N/A{% endif %}
+                </td>
+            </tr>
+        </table>
+     </div>
+    <div><br/></div>
+</div>
+
+{% if open_kcp_tasks %}
+<div class="alert alert-warning">
+    <table class="table table-bordered">
+    <caption>本阶段以下KCP任务未完成，项目暂无法切换到下一阶段：</caption>
+    <thead>
+        <tr>
+            <th>任务名称</th>
+            <th>分配给</th>
+            <th>当前处理人</th>
+            <th>状态</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for task in open_kcp_tasks %}
+    <tr>
+        <td>
+            <a href="/tasklist/{{ task.id }}" target="_blank">{{ task.name }}</a>
+        </td>
+        <td>
+            <a href="/user/{{ task.leader.id }}" target="_blank">
+            <img src="{{ task.leader.display_avatar_link }}" width="25px" />{{ task.leader }}
+            </a>
+        </td>
+        <td>
+            <a href="/user/{{ task.current_handler.id }}" target="_blank">
+            <img src="{{ task.current_handler.display_avatar_link }}" width="25px" />{{ task.current_handler }}
+            </a>
+        </td>
+        <td>{% ifequal task.status.ready_state 'DONE' %}完成{% else %}未完成{% endifequal %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+     </table>
+</div>
+{% else %}
+
+<div>
+<hr/>
+{% ifequal current_user project.current_handler %}
+        <div class="alert alert-warning">
+        此项目需要您的审批，请检视任务完成情况并进行审批：<br/>
+        备注：系统自动添加的KCP（关键控制点）任务如果未通过或者未完成，则无法进入下一阶段。
+        </div>
+        <form class="form-horizontal" role="form" action="/pflow" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="pid" value="{{ project.id }}" />
+            <div class="form-group">
+              <label for="no" class="col-sm-2 control-label">申请/审批</label>
+              <div class="col-sm-7">
+                 <select type="text" class="form-control" name="do" id="do" onchange="ReviewOptionChanged()">
+                      {% for option in project.status.status_options.all %}
+                     <option value="{{ option.do }}"{% ifequal option.do "APPROVE" %} selected="selected"{% endifequal %}>{{ option.opinion }}</option>
+                     {% endfor %}
+                 </select>
+              </div>
+            </div>
+            <div class="form-group" hidden="true" id="trusteediv">
+              <label for="trustee" class="col-sm-2 control-label">受委托人(*)</label>
+              <div class="col-sm-7">
+                 <input type="text" class="form-control" id="trustee" name="trustee" placeholder="请输入至少三个字母直到到右边用户唯一，单击它"  oninput="CheckTrusteeUser()">
+              </div>
+              <span id="AvailableTrustees" class="alert alert-info" onclick="FillTrusteeUser()"></span>
+            </div>
+            <div class="form-group">
+              <label for="comment" class="col-sm-2 control-label">补充意见</label>
+              <div class="col-sm-7">
+                 <textarea class="form-control" name="remarks" placeholder="补充意见或理由。" rows="3"></textarea>
+              </div>
+            </div>
+            <div class="form-group">
+              {% csrf_token %}
+            </div>
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-4">
+                 <button type="submit" class="btn btn-default">提交</button>
+              </div>
+            </div>
+        </form>
+{% else %}
+    <div class="well well-sm">
+        此项目暂不需要您处理。
+    </div>
+{% endifequal %}
+<hr/>
+</div>
+{% endif %}
+
+<div>
+    <div>
+    <a href="#" onclick="ToggleProjectDetail()" id="ProjectDetailSwitch">
+        显示/隐藏项目详情
+    </a><span class="glyphicon glyphicon-chevron-down" style="color: rgb(255, 140, 60);"></span>
+    <br/><br/>
+    </div>
+<div id="ProjectDetail" hidden="hidden">
+<table class="table table-bordered">
+<tr>
+    <td class="col-sm-2">项目编号</td>
+    <td>【{{ project.no }}】</td>
+    <td class="col-sm-2">项目名称</td>
+    <td>{{ project.name }}</td>
+</tr>
+<tr>
+    <td class="col-sm-2">项目经理</td>
+    <td><a href="/user/{{ project.manager.id }}"  target="_blank">
+        <img src="{{ project.manager.display_avatar_link }}" width="25px" />{{ project.manager }}</a>
+    </td>
+    <td class="col-sm-2">架构代表</td>
+    <td><a href="/user/{{ project.architect.id }}"  target="_blank"><img src="{{ project.architect.display_avatar_link }}" width="25px" />{{ project.architect }}</a></td>
+</tr>
+
+<tr>
+    <td class="col-sm-2">开发代表</td>
+    <td><a href="/user/{{ project.dev_rep.id }}"  target="_blank">
+        <img src="{{ project.dev_rep.display_avatar_link }}" width="25px" />{{ project.dev_rep }}</a>
+    </td>
+    <td class="col-sm-2">测试代表</td>
+    <td><a href="/user/{{ project.test_rep.id }}"  target="_blank">
+        <img src="{{ project.test_rep.display_avatar_link }}" width="25px" />{{ project.test_rep }}</a>
+    </td>
+
+</tr>
+<tr>
+    <td class="col-sm-2">项目成员</td>
+    <td colspan="3">
+        {% for member in project.members.all %}
+            <a href="/user/{{ member.id }}"  target="_blank"><img src="{{ member.display_avatar_link }}" width="25px" />{{ member }}</a>,
+        {% endfor %}
+    </td>
+</tr>
+<tr>
+    <td class="col-sm-2">运维代表</td>
+    <td colspan="3"><a href="/user/{{ project.op_rep.id }}"  target="_blank">
+        <img src="{{ project.op_rep.display_avatar_link }}" width="25px" />{{ project.op_rep }}</a>
+    </td>
+</tr>
+<tr>
+    <td class="col-sm-2">安全审核</td>
+    <td><a href="/user/{{ project.security_reviewer.id }}"  target="_blank">
+        <img src="{{ project.security_reviewer.display_avatar_link }}" width="25px" />{{ project.security_reviewer }}</a>
+    </td>
+    <td class="col-sm-2">流程QA</td>
+    <td><a href="/user/{{ project.qa.id }}"  target="_blank">
+        <img src="{{ project.qa.display_avatar_link }}" width="25px" />{{ project.qa }}</a>
+    </td>
+</tr>
+{% ifnotequal project.flow.type "AGL" %}
+<tr>
+    <td class="col-sm-2">Sponsor</td><td><a href="/user/{{ project.sponsor.id }}"  target="_blank"><img src="{{ project.sponsor.display_avatar_link }}" width="25px" />{{ project.sponsor }}</a></td>
+    <td class="col-sm-2">主审人</td>
+    <td><a href="/user/{{ project.chief_reviewer.id }}"  target="_blank">
+        <img src="{{ project.chief_reviewer.display_avatar_link }}" width="25px" />{{ project.chief_reviewer }}</a>
+    </td>
+</tr>
+<tr>
+    <td class="col-sm-2">业务代表</td>
+    <td><a href="/user/{{ project.business_rep.id }}"  target="_blank">
+        <img src="{{ project.business_rep.display_avatar_link }}" width="25px" />{{ project.business_rep }}</a>
+    </td>
+    <td class="col-sm-2">同行评审</td>
+    <td><a href="/user/{{ project.peer_reviewer.id }}"  target="_blank">
+        <img src="{{ project.peer_reviewer.display_avatar_link }}" width="25px" />{{ project.peer_reviewer }}</a>
+    </td>
+</tr>
+<tr>
+    <td class="col-sm-2">采购代表</td>
+    <td><a href="/user/{{ project.purchasing_rep.id }}"  target="_blank">
+        <img src="{{ project.purchasing_rep.display_avatar_link }}" width="25px" />{{ project.purchasing_rep }}</a>
+    </td>
+    <td class="col-sm-2">评审QC</td>
+    <td><a href="/user/{{ project.qc.id }}"  target="_blank">
+        <img src="{{ project.qc.display_avatar_link }}" width="25px" />{{ project.qc }}</a>
+    </td>
+</tr>
+<tr>
+    <td class="col-sm-2">干系人</td>
+    <td colspan="3">
+        {% for stakeholder in project.stakeholders.all %}
+        <a href="/user/{{ stakeholder.id }}"  target="_blank"><img src="{{ stakeholder.display_avatar_link }}" width="25px" />{{ stakeholder }}</a>,
+        {% endfor %}
+    </td>
+</tr>
+{% endifnotequal %}
+
+<tr>
+    <td class="col-sm-2">项目目标</td><td colspan="3">{{ project.objective }}</td>
+</tr>
+<tr><td class="col-sm-2">项目简介</td><td colspan="3">{{ project.introduction }}</td>
+</tr>
+<tr>
+    <td class="col-sm-2">项目团队</td>
+    <td><a href="/team/{{ project.team.id }}" target="_blank">{{ project.team }}</a></td>
+    <td class="col-sm-2">项目流程</td>
+    <td><a href="/flowlist/project/{{ project.flow.id }}" target="_blank">{{ project.flow.name }}</a></td>
+</tr>
+<tr>
+    <td class="col-sm-2" colspan="2">计划启动日期</td>
+    <td colspan="2">{{ project.plan_start_date|date:"Y-m-d" }}</td>
+</tr>
+<tr>
+    <td class="col-sm-2" colspan="2">计划完成日期</td>
+    <td colspan="2">{{ project.plan_end_date|date:"Y-m-d"  }}</td>
+</tr>
+<tr>
+    <td class="col-sm-2" colspan="2">实际启动日期</td>
+    <td colspan="2">{{ project.actual_start_date|date:"Y-m-d"  }}</td>
+</tr>
+<tr>
+    <td class="col-sm-2" colspan="2">实际完成日期</td>
+    <td colspan="2">{{ project.actual_end_date|date:"Y-m-d"  }}</td>
+</tr>
+<tr>
+    <td class="col-sm-2">计划人天数</td><td>{{ project.mandays }}</td>
+    <td class="col-sm-2">已用人天数</td><td>{{ project_actual_mandays.actual_mandays__sum }}</td>
+</tr>
+<tr>
+    <td class="col-sm-2">人天成本</td><td>{{ project.manday_cost }} {{ project.currency_unit }}</td>
+    <td class="col-sm-2">项目预算</td><td>{{ budget }} {{ project.currency_unit }}</td>
+</tr>
+
+<tr>
+    <td class="col-sm-2">硬件费用</td><td>{{ project.hardware_cost }} {{ project.currency_unit }}</td>
+    <td class="col-sm-2">软件费用</td><td>{{ project.software_cost }} {{ project.currency_unit }}</td>
+</tr>
+<tr>
+    <td class="col-sm-2">其它费用</td>
+    <td colspan="3">{{ project.other_cost }} {{ project.currency_unit }}</td>
+</tr>
+<tr>
+    <td class="col-sm-2" colspan="2">年度License费用</td>
+    <td colspan="2">{{ project.annual_license_cost }} {{ project.currency_unit }}</td>
+</tr>
+<tr>
+    <td class="col-sm-2" colspan="2">年度其它费用</td>
+    <td colspan="2">{{ project.other_annual_cost }} {{ project.currency_unit }}</td>
+</tr>
+
+
+</table>
+
+{% if all_kcp_tasks %}
+<div>
+    <table class="table table-bordered">
+    <caption>项目全部KCP任务列表</caption>
+    <thead>
+        <tr>
+            <th>任务名称</th>
+            <th>分配给</th>
+            <th>最迟完成阶段</th>
+            <th>状态</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for task in all_kcp_tasks %}
+    <tr>
+        <td><a href="/tasklist/{{ task.id }}" target="_blank">{{ task.name }}</a></td>
+        <td>
+            <a href="/user/{{ task.leader.id }}"  target="_blank"><img src="{{ task.leader.display_avatar_link }}" width="25px" />
+            {{ task.leader }}
+            </a>
+        </td>
+        <td>{{ task.done_in_project_phase.phase }}</td>
+        <td>{% ifequal task.status.ready_state 'DONE' %}完成{% else %}未完成{% endifequal %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div>
+<br/><br/>
+{% if can_be_deleted %}
+    <form action="/projectdel" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="pid" value="{{ project.id }}">
+    {% csrf_token %}
+    <button type="submit" onclick="return confirm('确认删除该项目？删除后将不可恢复。')">删除此项目【谨慎操作】</button>
+    </form>
+{% endif %}
+<br/>
+</div>
+</div>
+
+<div>
+项目流程日志纪录:
+<ul class="list-group">
+    {% for approval in project.project_approvals.all %}
+    <li class="list-group-item">
+        {{ approval.handle_time|date:"Y-m-d H:i:s" }} {{ approval.handler }}
+        {% if approval.option %}
+            【{{ approval.option.opinion }}】 补充意见:
+        {% endif %}
+        {{ approval.remarks | default:"无" }}
+    </li>
+    {% endfor %}
+</ul>
+</div>
+
+</div>
+{% else %}
+    <div>
+    {{ exp_message }}
+    </div>
+{% endif %}
+<script type="text/javascript">
+d3.select("#ProjectTab").attr("class", "active");
+
+function ReviewOptionChanged(){
+    var _do=document.getElementById('do').value;
+    if(_do=="TRANSFER"){
+        document.getElementById('trusteediv').hidden=false;
+    }
+    else{
+        document.getElementById('trusteediv').hidden=true;
+    }
+}
+function CheckTrusteeUser(){
+    var keyword=$("#trustee").val()
+    if(keyword.length>=3) {
+        $.get("/searchuser?s=" + keyword, function (data) {
+            $("#AvailableTrustees").text(data);
+        });
+    }
+}
+
+function FillTrusteeUser(){
+    var user=document.getElementById('AvailableTrustees').innerText;
+    if(user.indexOf(",")<0){
+        document.getElementById('trustee').value=user;
+    }
+}
+
+function ToggleProjectDetail(){
+    $("#ProjectDetail").toggle();
+}
+</script>

@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}注册{% endblock %}
+{% block body %}
+<div class="well well-sm">
+安全提示：
+<ul>
+    <li>
+        您可以先使用体验账号（办公邮箱linghuchong@janusec.com 密码Flzx3000c，不用输入，登录界面直接点击Demo即可）进行体验；
+    </li>
+    <li>
+        本系统对口令的主保护措施采取高强度单向散列加密算法并加盐处理，已抛弃MD5、SHA-1等弱加密算法，不可能从本平台数据库中还原出原始口令，请放心注册；
+    </li>
+    <li>
+        鉴于已有从其它网站泄密的口令在网络上传播，本平台虽已采取防撞库措施，但在没有达到拦截阈值之前仍存在很小的撞库可能，建议您放弃使用已泄密的口令；
+    </li>
+    <li>
+        本站定位：向企业提供在线项目管理、在线ITSM、安全流程等服务；仅支持企业邮箱注册；
+    </li>
+    <li>
+        密码强度规则目前暂不强制，仍可使用弱口令注册，但建议您在正式使用后修改为强度较高的口令；
+    </li>
+    <li>
+        请勿使用与办公邮箱相同的口令；
+    </li>
+    <li>
+        推荐使用本站提供的在线 <a href="/password/generator" title="密码生成器" target="_blank">密码生成器</a> （支持诗词密码、骰子密码）来生成高强度且好记的口令。
+    </li>
+</ul>
+
+</div>
+<div ng-app="ngReg" ng-controller="ngRegController">
+  <form class="form-horizontal" role="form" method="POST" ng-submit="submit()" action="#">
+  {% csrf_token %}
+  <div class="form-group">
+      <label for="email" class="col-sm-2 control-label">办公邮箱</label>
+      <div class="col-sm-4">
+         <input type="text" class="form-control" id="email" name="email" placeholder="请输入办公邮件地址，使用邮箱域名作为公司标识" ng-model="email" ng-change="CheckEmail()">
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="username" class="col-sm-2 control-label">姓名拼音</label>
+      <div class="col-sm-4">
+         <input type="text" class="form-control" id="username" name="username" placeholder="请输入姓名拼音，全小写，不留空格，如: zhangsan" ng-model="username">
+      </div>
+   </div>
+  {% verbatim %}
+   <div class="form-group">
+      <label for="password" class="col-sm-2 control-label">口令</label>
+      <div class="col-sm-4">
+         <input type="password" class="form-control" id="password" name="password" ng-model="password" ng-change="CheckStrength()">
+      </div>
+      <span class="alert-info">{{ strengthMsg }}</span>
+   </div>
+
+   <div class="form-group">
+      <label for="password2" class="col-sm-2 control-label">重复口令</label>
+      <div class="col-sm-4">
+         <input type="password" class="form-control" id="password2" ng-model="password2" ng-change="CheckPassword2()">
+      </div>
+      <span ng-show="ShowPasswordMatch" class="alert-info">{{ matchMsg }}</span>
+   </div>
+  {% endverbatim %}
+   <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-1">
+         <button type="submit" class="btn btn-default" ng-click="EncryptPassword()">注册</button>
+      </div>
+       <span>
+           <label class="control-label">
+               点击注册表示您已阅读并同意<a href="/content/user-protocol" target="_blank">用户协议</a>。
+           </label>
+      </span>
+   </div>
+</form>
+
+</div>
+{% endblock %}
+{% block script %}
+<script src="/static/jsbn/jsbn.js"></script>
+<script src="/static/jsbn/prng4.js"></script>
+<script src="/static/jsbn/rng.js"></script>
+<script src="/static/jsbn/rsa.js"></script>
+<script>
+var app=angular.module("ngReg",[]);
+app.controller("ngRegController",function($scope){
+    $scope.strengthMsg="密码规则：至少8位，包含大写字母、小写字母、数字、特殊字符中的三类";
+    $scope.CheckEmail=function(){
+        $scope.email=$scope.email.trim();
+        var index=$scope.email.indexOf("@");
+        if(index<0) $scope.username=$scope.email;
+        else{
+            $scope.username=$scope.email.substring(0,index);
+            var mail_domain=$scope.email.substring(index+1);
+            var block_emails=["qq.","163.","126.","sina.","hotmail.", "gmail.","yahoo.", "sohu.","outlook.","foxmail."];
+            for (i in block_emails) {
+                if(mail_domain.indexOf(block_emails[i])==0) {
+                    $scope.email=$scope.username+"@";
+                    alert("本系统使用公司电子邮箱地址作为公司唯一标识，不支持免费邮箱注册，请更换为公司邮件地址！");
+                    return;
+                }
+            }
+        }
+    };
+    $scope.CheckStrength=function(){
+        if($scope.password.length<8) $scope.strengthMsg="强度低 密码规则：至少8位，包含大写字母、小写字母、数字、特殊字符中的三类";
+        else{
+            var cat=0;
+            if(/\d+/.test($scope.password)) cat++;
+            if(/[a-z]+/.test($scope.password)) cat++;
+            if(/[A-Z]+/.test($scope.password)) cat++;
+            if(/[^a-zA-Z0-9]+/.test($scope.password)) cat++;
+            if(cat>=3) $scope.strengthMsg="强度符合要求";
+            else $scope.strengthMsg="强度低 密码规则：至少8位，包含大写字母、小写字母、数字、特殊字符中的三类";
+        }
+    };
+    $scope.CheckPassword2=function(){
+        $scope.ShowPasswordMatch=true;
+        if($scope.password2==$scope.password){
+            $scope.matchMsg="匹配OK!";
+        }
+        else $scope.matchMsg="密码不一致!";
+    };
+    $scope.EncryptPassword=function(){
+        var rsa = new RSAKey();
+        rsa.setPublic("ae322ee35120fe1653d696bfdf9b08fccbe0eeee8cb81a565c818f793afb41536b291899562d286d28045f0faff5492cc637035babe24cc60e8a10e790b0a3e9ce7b78d9b0240d8a34e9004dc2f92c54240462fc1ffc780344f5cbaded1a61a776917e6ae3ca8f5cf8b3b615ce0d07aec803f24c480f1bca8f64457e55812b73", "10001");
+        $scope.password=rsa.encrypt($scope.password);
+    };
+});
+
+</script>
+
+{% endblock %}

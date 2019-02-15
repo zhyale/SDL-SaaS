@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}新建项目{% endblock %}
+{% block body %}
+ <div>
+ <h2>新建项目 第一步：选择团队、项目管理流程</h2>
+ <div class="well well-sm">
+     <ul>
+         <li>默认选择精简安全内控项目管理流程；</li>
+         <li>项目管理流程包含的安全任务请参考<a href="/kcp" target="_blank">安全流程规范</a>。</li>
+     </ul>
+ </div>
+ </div>
+<div>
+<form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data">
+<input type="hidden" name="nextstep" value="2">
+<table class="table table-responsive">
+<tr>
+    <td width="60px" style="vertical-align: middle;">团队</td>
+    <td>{{ team.name }} （<a href="/team">切换</a>）</td>
+</tr>
+<tr>
+    <td style="vertical-align: middle;">
+        <input type="radio" name="fid" id="Radio1"  value="{{ flow_id_dict.AGL }}" checked="checked"/>
+    </td>
+    <td>
+        <div class="panel panel-info radio" onclick="document.getElementById('Radio1').checked=true;">
+        <div class="panel-heading">
+             精简安全内控项目管理流程（推荐）
+       </div>
+        <div class="panel-body">
+            适用场景：互联网行业、快速迭代开发小项目、创业项目；<br/>
+            流程特点：只包含最关键的安全任务，效率高，兼顾安全内控；
+            <a href="#" onclick="ShowFlowInfo({{ flow_id_dict.AGL }})">点击查看流程详情</a>
+        </div>
+    </div>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: middle;">
+        <input type="radio" name="fid" id="Radio2"  value="{{ flow_id_dict.APP }}">
+    </td>
+    <td>
+        <div class="panel panel-info radio"  onclick="document.getElementById('Radio2').checked=true;">
+            <div class="panel-heading">
+                 应用开发类安全内控项目管理流程
+           </div>
+           <div class="panel-body">
+               适用场景：传统行业，或者对流程遵从/交付质量/产品安全有严格要求的IT应用开发项目；<br/>
+               流程特点：包含全部安全任务和完整的项目阶段切换；
+               <a href="#" onclick="ShowFlowInfo({{ flow_id_dict.APP }})">点击查看流程详情</a>
+           </div>
+        </div>
+    </td>
+</tr>
+<tr>
+    <td style="vertical-align: middle;">
+        <input type="radio" name="fid" id="Radio3"  value="{{ flow_id_dict.INF }}">
+    </td>
+    <td>
+        <div class="panel panel-info radio"  onclick="document.getElementById('Radio3').checked=true;">
+          <div class="panel-heading">
+                 外购产品实施类安全内控项目管理流程
+           </div>
+            <div class="panel-body">
+                适用场景：传统行业，或者对流程遵从/交付质量/产品安全有严格要求的IT基础设施建设、外购软件包实施（不进行定制开发或只包含极少量的定制开发）项目；<br/>
+                流程特点：包含全部安全任务和完整的项目阶段切换；
+                <a href="#" onclick="ShowFlowInfo({{ flow_id_dict.INF }})">点击查看流程详情</a>
+            </div>
+        </div>
+    </td>
+</tr>
+
+{% if cus_flows %}
+<tr>
+    <td style="vertical-align: middle;">
+        {% with cus_flows|first as first_flow %}
+            <input type="radio" name="fid" id="Radio4" value="{{ first_flow.id }}">
+        {% endwith %}
+    </td>
+    <td>
+        <div class="panel panel-info radio"  onclick="document.getElementById('Radio4').checked=true;">
+          <div class="panel-heading">
+                 自定义项目管理流程
+           </div>
+            <div class="panel-body">
+                <select class="col-sm-7" onclick="document.getElementById('Radio4').value=this.value;">
+                    {% for flow in team.team_flows.all %}
+                        <option value="{{ flow.id }}">【{{ flow.team }}】{{ flow.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </td>
+</tr>
+{% endif %}
+
+<tr>
+    <td></td>
+    <td>
+        <div class="text-center">
+            {% csrf_token %}
+            <input type="submit" value="下一步">
+        </div>
+    </td>
+
+</tr>
+
+</table>
+</form>
+</div>
+<div id="FlowModal" class="modal fade" role="dialog" aria-labelledby="FlowName" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                流程详情<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body" id="FlowInfo">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+function ShowFlowInfo(fid){
+    $("#FlowInfo").load("/projectflow/"+fid);
+    jQuery("#FlowModal").modal();
+}
+</script>
+{% endblock %}

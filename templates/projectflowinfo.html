@@ -1,0 +1,239 @@
+<div>
+<h2>
+    {% if flow.team %}【{{ flow.team }}】{% endif %}
+    {{ flow.name }}
+</h2>
+<p class="alert alert-success">
+    移动鼠标到流程图的审批路径上面，查看审批详情；<br/>
+    关键检查点(KCP)任务将自动添加，未在此处列出。
+</p>
+
+</div>
+<div>
+<div id="svgdiv" class="col-sm-offset-2">
+</div>
+
+<div id="flowdiv">
+    {% if projects %}
+        <div>
+            <h4>使用该流程的项目</h4>
+            <ul class="list-group">
+                {% for project in projects %}
+                    <li class="list-group-item">
+                        <a href="/projectlist/{{ project.id }}">{{ project.name }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        {% if current_user in flow.team.admins.all %}
+            <div class="text-center">
+                <form method="POST" enctype="multipart/form-data" action="/flowdel">
+                    <input type="hidden" name="fid" value="{{ flow.id }}">
+                    <input type="hidden" name="type" value="project">
+                    {% csrf_token %}
+                    <button type="submit">此流程暂无项目使用，删除该流程</button>
+                </form>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+</div>
+<!-- script src="/static/js/jquery-1.11.3.min.js"></script-->
+<!-- script src="/static/js/d3.min.js"></script-->
+<script type="text/javascript">
+function drawSVG(){
+    var flowlist={{ flow_json|safe }};
+    var dataset=[];
+    $.extend(dataset, flowlist);
+    dataset.pop()
+    var phaselist=dataset;
+    var width = 550;
+    var height = flowlist.length*150;
+    d3.select("#svgdiv").selectAll("svg").remove();
+    var svg = d3.select("#svgdiv").append("svg").attr("width", width).attr("height", height).attr("xmlns","http://www.w3.org/2000/svg").attr("version","1.1");
+    svg.append("defs")
+            .append("marker").attr("id","arrowEnd").attr("markerWidth","13").attr("markerHeight","13").attr("refX",0).attr("refY",2).attr("orient","auto")
+            .append("path").attr("d","M0,0 L0,4 L6,2 L0,0").attr("style","fill: #6a5acd;")
+    var leftX=50;
+    var rectHeight = 150;
+    svg.selectAll(".phasetext")
+            .data(flowlist)
+            .enter()
+            .append("text")
+            .attr("class","phasetext")
+            .attr("x",leftX+20)
+            .attr("dy",function(d,i){
+                return  i * rectHeight+80;
+            })
+            .text(function(d,i){
+                return d.display;
+            });
+    svg.selectAll("rect")
+            .data(flowlist)
+            .enter()
+            .append("rect")
+            .attr("x",leftX)
+            .attr("y",function(d,i){
+                 return i * rectHeight+50;
+            })
+            .attr("rx",20)
+            .attr("ry",20)
+            .attr("width",130)
+            .attr("height",rectHeight-100)
+            .attr("opacity","0.4")
+            .attr("fill","#f0ffff")
+            .attr("stroke","#6a5acd")
+            .attr("stroke-width",2)
+            .on("mouseover",function(d,i){
+                    d3.select(this).attr("fill","yellow");
+                    var desc="";
+                    if(d["status"]["IN_OPERATION"]) desc="项目结束";
+                    else desc= d["status"]["IN_PROCESS"]["description"];
+                    svg.append("text").attr("class","tempTip").attr("x",leftX+135).attr("dy",i * rectHeight+60).attr("width","200").text(desc);
+               })
+            .on("mouseout",function(d,i){
+                    d3.select(this).transition().attr("fill","#f0ffff");
+                    d3.selectAll(".tempTip").remove();
+               });
+    svg.selectAll(".approvetext")
+            .data(dataset)
+            .enter()
+            .append("text")
+            .attr("class","approvetext")
+            .attr("x",leftX+50)
+            .attr("dy",function(d,i){
+                return  i * rectHeight+155;
+            })
+            .attr("fill","#4b0082")
+            .text("审批");
+    svg.selectAll("polygon")
+            .data(dataset)
+            .enter()
+            .append("polygon")
+            .attr("points",function(d,i){
+                var leftPX=leftX+15;
+                var leftPY=(i * rectHeight+150);
+                coo=leftPX+","+leftPY; //left
+                coo+=" "+(leftPX+50)+","+(leftPY-20); //top
+                coo+=" "+(leftPX+100)+","+leftPY; //right
+                coo+=" "+(leftPX+50)+","+(leftPY+20);
+                return coo;
+            })
+            .attr("fill","#f0ffff")
+            .attr("opacity","0.3")
+            .attr("stroke","#6a5acd")
+            .attr("stroke-width",2)
+            .on("mouseover",function(d,i){
+                    d3.select(this).attr("fill","yellow");
+                    var desc= d["status"]["IN_APPROVAL"]["description"];
+                    svg.append("text").attr("class","tempTip")
+                        .attr("x",leftX+90).attr("dy",i * rectHeight+170)
+                        .attr("width","200")
+                        .text(desc);
+               })
+            .on("mouseout",function(d,i){
+                    d3.select(this)
+                      .transition()
+                      .attr("fill","#f0ffff");
+                    d3.selectAll(".tempTip").remove();
+               });;
+    // begin to approve
+    svg.selectAll(".preline")
+            .data(dataset)
+            .enter()
+            .append("line")
+            .attr("class","preline")
+            .attr("x1",leftX+65)
+            .attr("y1",function(d,i){
+                return i * rectHeight+100;
+            })
+            .attr("x2",leftX+65)
+            .attr("y2",function(d,i){
+                return i * rectHeight+120;
+            })
+            .attr("stroke","#6a5acd")
+            .attr("stroke-width",2)
+            .attr("marker-end","url(#arrowEnd)")
+            .on("mouseover",function(d,i){
+                d3.select(this).transition().duration(500).attr("stroke-width",4);
+                var desc= d["status"]["IN_PROCESS"]["options"]["SUBMIT"];
+                svg.append("text").attr("class","tempTip")
+                        .attr("x",leftX+70).attr("dy",i * rectHeight+120)
+                        .attr("width","200")
+                        .text(desc);
+            })
+            .on("mouseout",function(d,i){
+                d3.select(this).transition().duration(500).attr("stroke-width",2);
+                d3.selectAll(".tempTip").remove();
+            });
+    // approve line
+    svg.selectAll(".postline")
+            .data(dataset)
+            .enter()
+            .append("line")
+            .attr("class","postline")
+            .attr("x1",leftX+65)
+            .attr("y1",function(d,i){
+                return i * rectHeight+170;
+            })
+            .attr("x2",leftX+65)
+            .attr("y2",function(d,i){
+                return i * rectHeight+190;
+            })
+            .attr("stroke","#6a5acd")
+            .attr("stroke-width",2)
+            .attr("marker-end","url(#arrowEnd)")
+            .on("mouseover",function(d,i){
+                d3.select(this).transition().duration(500).attr("stroke-width",4);
+                var desc= d["status"]["IN_APPROVAL"]["options"]["APPROVE"];
+                svg.append("text").attr("class","tempTip")
+                        .attr("x",leftX+70).attr("dy",i * rectHeight+190)
+                        .attr("width","200")
+                        .text(desc);
+            })
+            .on("mouseout",function(d,i){
+                d3.select(this).transition().duration(500).attr("stroke-width",2);
+                d3.selectAll(".tempTip").remove();
+            });
+    // return
+    svg.selectAll(".returnline")
+            .data(dataset)
+            .enter()
+            .append("path")
+            .attr("class","returnline")
+            .attr("d",function(d,i){
+                var point0X=leftX+115;
+                var point0Y=(i * rectHeight+150);
+                var point1X=point0X+50;
+                var point1Y=point0Y;
+                var point2X=point1X;
+                var point2Y=point1Y-75;
+                var point3X=point0X+30;
+                var point3Y=point2Y;
+                var path="M"+point0X+","+point0Y;
+                path+=" L"+point1X+","+point1Y;
+                path+=" L"+point2X+","+point2Y;
+                path+=" L"+point3X+","+point3Y;
+                return path;
+            })
+            .attr("fill","none")
+            .attr("stroke","#6a5acd")
+            .attr("stroke-width",2)
+            .attr("marker-end","url(#arrowEnd)")
+            .on("mouseover",function(d,i){
+                d3.select(this).transition().duration(500).attr("stroke-width",4);
+                var desc= d["status"]["IN_APPROVAL"]["options"]["RETURN"];
+                svg.append("text").attr("class","tempTip")
+                        .attr("x",leftX+170).attr("dy",i * rectHeight+115)
+                        .attr("width","200")
+                        .text(desc);
+            })
+            .on("mouseout",function(d,i){
+                d3.select(this).transition().duration(500).attr("stroke-width",2);
+                d3.selectAll(".tempTip").remove();
+            });
+};
+drawSVG();
+</script>

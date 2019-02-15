@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}编辑任务-SDL{% endblock %}
+{% block body %}
+    <hr/>
+ <h2>编辑任务</h2>
+ <hr/>
+  {% if task %}
+   <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data">
+   <input type="hidden" name="tid" value="{{ task.id }}" />
+   <div class="form-group">
+      <label for="name" class="col-sm-2 control-label">任务名称(*)</label>
+      <div class="col-sm-7">
+         <input type="text" class="form-control" name="name" value="{{ task.name }}">
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="description" class="col-sm-2 control-label">任务描述</label>
+      <div class="col-sm-7">
+         <textarea class="form-control" name="description" rows="6">{{ task.description }}</textarea>
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="leader" class="col-sm-2 control-label">分配给(*)</label>
+      <div class="col-sm-7">
+         <input type="text" class="form-control" id="leader" name="leader" value="{{ task.leader }}"  oninput="CheckUser('leader','AvailableLeaders')">
+      </div>
+      <span id="AvailableLeaders" class="alert alert-info" onclick="FillUser('AvailableLeaders','leader')"></span>
+   </div>
+   <div class="form-group">
+      <label for="reviewer" class="col-sm-2 control-label">复核人(*)</label>
+      <div class="col-sm-7">
+         <input type="text" class="form-control" id="reviewer" name="reviewer" value="{{ task.reviewer }}"  oninput="CheckUser('reviewer','AvailableReviewers')">
+      </div>
+      <span id="AvailableReviewers" class="alert alert-info" onclick="FillUser('AvailableReviewers','reviewer')"></span>
+   </div>
+   <div class="form-group">
+      <label for="plan_mandays" class="col-sm-2 control-label">计划人天数</label>
+      <div class="col-sm-7">
+         <input type="text" class="form-control" name="plan_mandays" value="{{ task.plan_mandays }}">
+      </div>
+   </div>
+   <div class="form-group">
+      <label for="pid" class="col-sm-2 control-label">所属项目</label>
+      <div class="col-sm-7">
+         <select type="text" class="form-control" name="pid" id="pid">
+            {% for project in projects %}
+            <option value="{{ project.id }}"{% ifequal project.id task.project.id %} selected="selected"{% endifequal %}>{{ project.name }}</option>
+            {% endfor %}
+            <option value="0"{% if not task.project %} selected="selected"{% endif %}>不属于任何项目</option>
+         </select>
+      </div>
+   </div>
+   <div class="form-group">
+      <div class="checkbox">
+          <label for="is_kcp" class="col-sm-2 control-label">关键任务</label>
+          <div class="col-sm-7">
+            <input type="checkbox" name="is_kcp"{% if task.is_kcp %} checked="checked"{% endif %}>标记为KCP任务（标记后该任务必须在本阶段完成，未完成则所属项目无法进入下一阶段）
+          </div>
+      </div>
+   </div>
+
+   <div class="form-group">
+      {% csrf_token %}
+    </div>
+   <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-4">
+         <button type="submit" class="btn btn-default">提交</button>
+      </div>
+   </div>
+</form>
+{% else %}
+      未找到项目。
+{% endif %}
+<script type="text/javascript">
+function CheckUser(input_id, display_id){
+    var keyword=document.getElementById(input_id).value;
+    if(keyword.length>=3) {
+        $.get("/searchuser?s=" + keyword, function (data) {
+            document.getElementById(display_id).innerText=data;
+        });
+    }
+}
+
+function CheckManyUser(input_id, display_id){
+    var full_members=document.getElementById(input_id).value;
+    var index=full_members.lastIndexOf(",")
+    var keyword=full_members;
+    if(index>0){
+        keyword=full_members.substring(index+1);
+    }
+    if(keyword.length>=3) {
+        $.get("/searchuser?s=" + keyword, function (data) {
+            document.getElementById(display_id).innerText=data;
+        });
+    }
+}
+
+function FillUser(from_id, to_id){
+    var user=document.getElementById(from_id).innerText;
+    if(user.indexOf(",")<0){
+        document.getElementById(to_id).value=user;
+    }
+}
+
+function FillManyUser(from_id, to_id){
+    var user=document.getElementById(from_id).innerText;
+    if(user.indexOf(",")<0){
+        var input_members=document.getElementById(to_id).value;
+        var index=input_members.lastIndexOf(",")
+        var pre_members="";
+        if(index>0){
+            pre_members=input_members.substring(0,index+1);
+        }
+        document.getElementById(to_id).value=pre_members+user+",";
+        document.getElementById(to_id).focus();
+    }
+}
+
+</script>
+
+{% endblock %}

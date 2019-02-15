@@ -1,0 +1,45 @@
+<div>
+    <table class="table table-bordered">
+        <tr>
+            <td>IP地址</td>
+            <td>{{ ip.name }}</td>
+        </tr>
+        <tr>
+            <td>类型</td>
+            <td>{{ ip.get_category_display }}</td>
+        </tr>
+        <tr>
+            <td>域名</td>
+            <td>
+            <ul>
+                {% for domain in ip.ip_domains.all %}
+                    <li>{{ domain.name }}</li>
+                {% endfor %}
+            </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>CI</td>
+            <td>
+            <ul>
+                {% for ci in ip.ip_cis.all %}
+                    <li>
+                    <a href="/itsm/ci/{{ ci.id }}" target="_blank">
+                        {{ ci.name }}
+                    </a>
+                    </li>
+                {% endfor %}
+            </ul>
+            </td>
+        </tr>
+    </table>
+
+    {% if permit_delete %}
+    <form action="/itsm/ip-management" method="POST">
+    {% csrf_token %}
+    <input type="hidden" name="do" value="delete">
+    <input type="hidden" name="id" value="{{ ip.id }}">
+    <input type="submit" value="删除此IP">
+    </form>
+    {% endif %}
+</div>

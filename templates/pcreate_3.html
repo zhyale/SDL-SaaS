@@ -1,0 +1,458 @@
+{% extends 'base.html' %}
+{% block title %}新建项目{% endblock %}
+{% block body %}
+    <div class="row">
+        <div class="col-sm-9">
+            <div>
+                <h1>新建项目 第三步：补充或修改项目信息</h1>
+
+                <p></p>
+            </div>
+            <div class="alert alert-success">
+                <ul>
+                    <li>点击角色旁边的问号查看其职责；</li>
+                    <li>允许一人担任多个角色。</li>
+                </ul>
+            </div>
+
+            <div ng-app="ngPCreate3" ng-controller="ngPCreate3Controller">
+
+                <form name="createProjectForm2" class="form-horizontal" role="form" method="POST"
+                      enctype="multipart/form-data"
+                      ng-submit="submit()" action="#">
+                    <input type="hidden" name="pid" value="{{ project.id }}">
+                    <input type="hidden" name="nextstep" value="4">
+
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">项目名称(*)</label>
+
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" value="{{ project.name }}" readonly>
+                        </div>
+                    </div>
+                <fieldset>
+                    <legend>更多项目角色</legend>
+                    <div class="form-group">
+                        <label for="sponsor" class="col-sm-2 control-label">Sponsor
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;"  ng-click="ShowWiki('SPONSOR')"></span>
+                        </label>
+
+                        <div class="col-sm-3" id="input_div_sponsor">
+                            <input type="hidden" name="sponsor_id" id="sponsor_id" value="{{ current_user.id }}">
+                            <input type="text" class="form-control" id="sponsor" value="{{ current_user.username }}"
+                                   style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;background-image: url({{ current_user.display_avatar_link }})"
+                                   oninput="SearchUsers('input_div_sponsor','SponsorProgressBar','sponsor','sponsor_id')">
+                        </div>
+                        <div class="col-sm-1">
+                            <span class="progress progress-striped active" style="padding: 0;margin-top: 5px;visibility: hidden"
+                                  id="SponsorProgressBar">
+                              <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
+                                   aria-valuemin="0"
+                                   aria-valuemax="100" style="width: 100%;">查询中
+                              </div>
+                           </span>
+                        </div>
+
+                        <label for="business_rep" class="col-sm-2 control-label">业务代表
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;"  ng-click="ShowWiki('BUSINESS_REP')"></span>
+                        </label>
+
+                        <div class="col-sm-3" id="input_div_business_rep">
+                            <input type="hidden" name="business_rep_id" id="business_rep_id"
+                                   value="{{ current_user.id }}">
+                            <input type="text" class="form-control" id="business_rep"
+                                   value="{{ current_user.username }}"
+                                   style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;background-image: url({{ current_user.display_avatar_link }})"
+                                   oninput="SearchUsers('input_div_business_rep','BusinessRepProgressBar','business_rep','business_rep_id')">
+                        </div>
+                        <div class="col-sm-1">
+                            <span class="progress progress-striped active" style="padding: 0;margin-top: 5px;visibility: hidden"
+                                  id="BusinessRepProgressBar">
+                              <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
+                                   aria-valuemin="0"
+                                   aria-valuemax="100" style="width: 100%;">查询中
+                              </div>
+                           </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="chief_reviewer" class="col-sm-2 control-label">项目主审
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;" 
+                                  ng-click="ShowWiki('CHIEF_REVIEWER')"></span>
+                        </label>
+
+                        <div class="col-sm-3" id="input_div_chief_reviewer">
+                            <input type="hidden" name="chief_reviewer_id" id="chief_reviewer_id"
+                                   value="{{ current_user.id }}">
+                            <input type="text" class="form-control" id="chief_reviewer"
+                                   value="{{ current_user.username }}"
+                                   style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;background-image: url({{ current_user.display_avatar_link }})"
+                                   oninput="SearchUsers('input_div_chief_reviewer','ChiefReviewerProgressBar','chief_reviewer','chief_reviewer_id')">
+                        </div>
+                        <div class="col-sm-1">
+                            <span class="progress progress-striped active" style="padding: 0;margin-top: 5px;visibility: hidden"
+                                  id="ChiefReviewerProgressBar">
+                              <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
+                                   aria-valuemin="0"
+                                   aria-valuemax="100" style="width: 100%;">查询中
+                              </div>
+                           </span>
+                        </div>
+
+                        <label for="peer_reviewer" class="col-sm-2 control-label">同行代表
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;"  ng-click="ShowWiki('PEER_REVIEWER')"></span>
+                        </label>
+
+                        <div class="col-sm-3" id="input_div_peer_reviewer">
+                            <input type="hidden" name="peer_reviewer_id" id="peer_reviewer_id"
+                                   value="{{ current_user.id }}">
+                            <input type="text" class="form-control" id="peer_reviewer"
+                                   value="{{ current_user.username }}"
+                                   style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;background-image: url({{ current_user.display_avatar_link }})"
+                                   oninput="SearchUsers('input_div_peer_reviewer','PeerReviewerProgressBar','peer_reviewer','peer_reviewer_id')">
+                        </div>
+                        <div class="col-sm-1">
+                            <span class="progress progress-striped active" style="padding: 0;margin-top: 5px;visibility: hidden"
+                                  id="PeerReviewerProgressBar">
+                              <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
+                                   aria-valuemin="0"
+                                   aria-valuemax="100" style="width: 100%;">查询中
+                              </div>
+                           </span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="purchasing_rep" class="col-sm-2 control-label">采购代表
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;" 
+                                  ng-click="ShowWiki('PURCHASING_REP')"></span>
+                        </label>
+
+                        <div class="col-sm-3" id="input_div_purchasing_rep">
+                            <input type="hidden" name="purchasing_rep_id" id="purchasing_rep_id"
+                                   value="{{ current_user.id }}">
+                            <input type="text" class="form-control" id="purchasing_rep"
+                                   value="{{ current_user.username }}"
+                                   style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;background-image: url({{ current_user.display_avatar_link }})"
+                                   oninput="SearchUsers('input_div_purchasing_rep','PurchasingRepProgressBar','purchasing_rep','purchasing_rep_id')">
+                        </div>
+                        <div class="col-sm-1">
+                            <span class="progress progress-striped active" style="padding: 0;margin-top: 5px;visibility: hidden"
+                                  id="PurchasingRepProgressBar">
+                              <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
+                                   aria-valuemin="0"
+                                   aria-valuemax="100" style="width: 100%;">查询中
+                              </div>
+                           </span>
+                        </div>
+
+                        <label for="user_rep" class="col-sm-2 control-label">用户代表
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;"  ng-click="ShowWiki('USER_REP')"></span>
+                        </label>
+
+                        <div class="col-sm-3" id="input_div_user_rep">
+                            <input type="hidden" name="user_rep_id" id="user_rep_id" value="{{ current_user.id }}">
+                            <input type="text" class="form-control" id="user_rep" value="{{ current_user.username }}"
+                                   style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;background-image: url({{ current_user.display_avatar_link }})"
+                                   oninput="SearchUsers('input_div_user_rep','UserRepProgressBar','user_rep','user_rep_id')">
+                        </div>
+                        <div class="col-sm-1">
+                            <span class="progress progress-striped active" style="padding: 0;margin-top: 5px;visibility: hidden"
+                                  id="UserRepProgressBar">
+                              <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
+                                   aria-valuemin="0"
+                                   aria-valuemax="100" style="width: 100%;">查询中
+                              </div>
+                           </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="qc" class="col-sm-2 control-label">QC
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;"  ng-click="ShowWiki('QC')"></span>
+                        </label>
+
+                        <div class="col-sm-3" id="input_div_qc">
+                            <input type="hidden" name="qc_id" id="qc_id" value="{{ current_user.id }}">
+                            <input type="text" class="form-control" id="qc" value="{{ current_user.username }}"
+                                   style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;background-image: url({{ current_user.display_avatar_link }})"
+                                   oninput="SearchUsers('input_div_qc','QCProgressBar','qc','qc_id')">
+                        </div>
+                        <div class="col-sm-1">
+                            <span class="progress progress-striped active" style="padding: 0;margin-top: 5px;visibility: hidden"
+                                  id="QCProgressBar">
+                              <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
+                                   aria-valuemin="0"
+                                   aria-valuemax="100" style="width: 100%;">查询中
+                              </div>
+                           </span>
+                        </div>
+                    </div>
+                    {% verbatim %}
+                    <div class="form-group">
+                        <label for="stakeholders" class="col-sm-2 control-label">干系人(可选)
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;"  ng-click="ShowWiki('STAKEHOLDER')"></span>
+                        </label>
+
+                        <div class="col-sm-9">
+                            <input type="text" class="form-control" ng-model="stakeholder_keyword"
+                                   ng-change="SearchUsers('showAvailableStakeholderDiv','StakeholdersProgressBar',stakeholder_keyword)"
+                                   placeholder="输入三个字母开始检索"/>
+
+                            <div class="" ng-show="showAvailableStakeholderDiv">
+                                <ul class="list-group">
+                                    <li class="list-group-item" ng-repeat="user in availableUsers">
+                                        <a href="#"
+                                           ng-click="SelectMultiUsers(user,'stakeholders','showAvailableStakeholderDiv','stakeholder_keyword')">
+                                            <img ng-src="{{ user.avatar }}" width="30px"/>{{ user.username }} {{
+                                            user.email }}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <div ng-repeat="stakeholder in stakeholders" class="col-sm-4 pull-left">
+                                    <input type="hidden" name="stakeholders" value="{{ stakeholder.uid }}">
+                                    <img ng-src="{{ stakeholder.avatar }}" width="20px"/>
+                                    <span class="label label-success">{{ stakeholder.username }}</span>
+                            <span class="close"
+                                  ng-click="RemoveMultiUsers(stakeholder,'stakeholders')" title="移除">&times;</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <span class="progress progress-striped active" style="padding: 0;margin-top: 5px;visibility: hidden"
+                                  id="StakeholdersProgressBar">
+                              <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100"
+                                   aria-valuemin="0"
+                                   aria-valuemax="100" style="width: 100%;">查询中
+                              </div>
+                           </span>
+                        </div>
+                    </div>
+
+                    {% endverbatim %}
+                </fieldset>
+                <fieldset>
+                    <legend>更多信息</legend>
+                    <div class="form-group">
+                        <label for="hardware_cost" class="col-sm-2 control-label">硬件预算
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;"  ng-click="ShowWiki('HARDWARE_COST')"></span>
+                        </label>
+
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="hardware_cost" value="0.0">
+                        </div>
+
+                        <label for="software_cost" class="col-sm-2 control-label">软件预算
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;"  ng-click="ShowWiki('SOFTWARE_COST')"></span>
+                        </label>
+
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="software_cost" value="0.0">
+                        </div>
+                        <span></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="other_cost" class="col-sm-2 control-label">其它预算
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;"  ng-click="ShowWiki('OTHER_COST')"></span>
+                        </label>
+
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="other_cost" value="0.0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="annual_license_cost" class="col-sm-2 control-label">年度License费用
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;" 
+                                  ng-click="ShowWiki('ANNUAL_LICENSE_COST')"></span>
+                        </label>
+
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="annual_license_cost" value="0.0">
+                        </div>
+
+                        <label for="other_annual_cost" class="col-sm-2 control-label">年度其它费用
+                            <span class="glyphicon glyphicon-question-sign" style="color: #2834ea;" 
+                                  ng-click="ShowWiki('ANNUAL_OTHER_COST')"></span>
+                        </label>
+
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" name="other_annual_cost" value="0.0">
+                        </div>
+                    </div>
+                </fieldset>
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-4">
+                            <div class="text-center">
+                                <input type="submit" class="btn btn-default" value="保存">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                <div id="WikiModal" class="modal fade" role="dialog" aria-labelledby="TermName" aria-hidden="true">
+                    {% verbatim %}
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <span class="glyphicon glyphicon-flash" style="color: #2834ea;"> </span> {{ wiki_expression }}
+                                <button type="button" class="close" data-dismiss="modal"
+                                        aria-hidden="true">&times;</button>
+                            </div>
+                            <div class="modal-body" id="WikiInfo" data-ng-bind-html="wiki_description" style="background-color: #EDF3FE;">
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endverbatim %}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3">
+
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="/static/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/static/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script type="text/javascript">
+        $('.input-group.date').datepicker({
+            format: "yyyy-mm-dd",
+            autoclose: true,
+            todayHighlight: true
+        });
+        var app = angular.module("ngPCreate3", []);
+        app.controller("ngPCreate3Controller", function ($scope, $http, $sce) {
+            //
+            $scope.sponsor = {
+                'uid':{{ current_user.id }},
+                'username': '{{ current_user.username }}',
+                'avatar': '{{ current_user.display_avatar_link }}'
+            };
+            $scope.business_rep = {
+                'uid':{{ current_user.id }},
+                'username': '{{ current_user.username }}',
+                'avatar': '{{ current_user.display_avatar_link }}'
+            };
+            $scope.chief_reviewer = {
+                'uid':{{ current_user.id }},
+                'username': '{{ current_user.username }}',
+                'avatar': '{{ current_user.display_avatar_link }}'
+            };
+            $scope.user_rep = {
+                'uid':{{ current_user.id }},
+                'username': '{{ current_user.username }}',
+                'avatar': '{{ current_user.display_avatar_link }}'
+            };
+            $scope.peer_reviewer = {
+                'uid':{{ current_user.id }},
+                'username': '{{ current_user.username }}',
+                'avatar': '{{ current_user.display_avatar_link }}'
+            };
+            $scope.purchasing_rep = {
+                'uid':{{ current_user.id }},
+                'username': '{{ current_user.username }}',
+                'avatar': '{{ current_user.display_avatar_link }}'
+            };
+            $scope.qa = {
+                'uid':{{ current_user.id }},
+                'username': '{{ current_user.username }}',
+                'avatar': '{{ current_user.display_avatar_link }}'
+            };
+            $scope.qc = {
+                'uid':{{ current_user.id }},
+                'username': '{{ current_user.username }}',
+                'avatar': '{{ current_user.display_avatar_link }}'
+            };
+            $scope.SponsorBackImage = {"background-image": "url(" + $scope.sponsor.avatar + ")"};
+            $scope.Biz_repBackImage = $scope.SponsorBackImage;
+            $scope.Chief_reviewerBackImage = $scope.SponsorBackImage;
+            $scope.User_repBackImage = $scope.SponsorBackImage;
+            $scope.Peer_reviewerBackImage = $scope.SponsorBackImage;
+            $scope.Purchasing_repBackImage = $scope.SponsorBackImage;
+            $scope.QCBackImage = $scope.SponsorBackImage;
+
+            $scope.SearchUsers = function (isShow, process_bar, keyword) {
+                if (keyword.length < 3) return;
+                d3.select("#"+process_bar).style("visibility","visible");
+                var url = "/searchusers?s=" + keyword;
+                $http.get(url).success(function (response) {
+                    $scope[isShow] = true;
+                    $scope.availableUsers = response;
+                    d3.select("#"+process_bar).style("visibility","hidden");
+                });
+            };
+            $scope.SelectUser = function (user, showDiv, role, backImage) {
+                $scope[role] = user;
+                $scope[backImage] = {"background-image": "url(" + user.avatar + ")"};
+                $scope[showDiv] = false;
+            };
+
+            $scope.stakeholders = [];
+            $scope.Contains = function (users, user) {
+                for (x in users) {
+                    if (users[x].uid == user.uid) return true;
+                }
+                return false;
+            };
+            $scope.SelectMultiUsers = function (user, group, showDiv, searchInput) {
+                if (!$scope.Contains($scope[group], user))  $scope[group].push(user);
+                $scope[showDiv] = false;
+                $scope[searchInput] = "";
+            };
+            $scope.RemoveMultiUsers = function (user, group) {
+                $scope[group] = $scope[group].filter(function (obj) {
+                    return obj.uid != user.uid;
+                });
+            };
+            $scope.ShowWiki = function (term) {
+                var url = "/termwiki/" + term;
+                $http.get(url).success(function (response) {
+                    var wiki = response;
+                    $scope.wiki_expression = wiki.expression;
+                    $scope.wiki_description = $sce.trustAsHtml(wiki.description.replace(/\r\n/g, "<br/>").replace(/\n/g, "<br/>"));
+                });
+                $("#WikiModal").modal();
+            };
+        });
+
+        function SearchUsers(input_div, process_bar, role, role_id) {
+            var keyword = $("#" + role).val();
+            if (keyword.length >= 3) {
+                d3.select("#"+process_bar).style("visibility","visible");
+                d3.selectAll("#tempUserlist").remove();
+                $.get("/searchusers?s=" + keyword, function (data) {
+                    var a = d3.select("#" + input_div)
+                            .append("ul")
+                            .attr("class", "list-group")
+                            .attr("id", "tempUserlist")
+                            .selectAll(".list-group-item")
+                            .data(data)
+                            .enter()
+                            .append("li").attr("class", "list-group-item")
+                            .append("a").attr("href", "#")
+                            .on("click", function (d) {
+                                d3.select("#" + role).property("value", d["username"]).style("background-image", "url(" + d["avatar"] + ")");
+                                d3.select("#" + role_id).property("value", d["uid"]);
+                                d3.selectAll("#tempUserlist").remove();
+                            });
+                    a.append("img").attr("width", "25px").attr("src", function (d) {
+                        return d["avatar"];
+                    });
+                    a.append("span").text(function (d) {
+                        return d["username"] + " " + d["email"];
+                    });
+                    d3.select("#"+process_bar).style("visibility","hidden");
+                });
+            }
+        }
+    </script>
+{% endblock %}

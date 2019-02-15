@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% block title %}新建任务{% endblock %}
+{% block body %}
+    <div ng-app="ngTCreate" ng-controller="ngTCreateController" class="row">
+        <div class="col-sm-9">
+            <h2>新建任务</h2>
+            <hr/>
+            <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="#">
+                {% csrf_token %}
+                <fieldset>
+                    <legend>确认团队信息</legend>
+                    <div class="form-group">
+                        <label for="team_id" class="col-sm-2 control-label">所属团队</label>
+
+                        <div class="col-sm-7">
+                            <select class="form-control" name="team_id" onchange="javascript:this.form.submit();"
+                                    title="切换团队">
+                                {% for team in teams %}
+                                    <option value="{{ team.id }}"
+                                            {% ifequal team current_user.default_team %}selected{% endifequal %}>{{ team.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+
+            <form class="form-horizontal" role="form" method="POST" enctype="multipart/form-data" action="#">
+                {% csrf_token %}
+                <fieldset>
+                    <legend>基本任务信息</legend>
+                    <div class="form-group">
+                        <label for="pid" class="col-sm-2 control-label">所属项目</label>
+
+                        <div class="col-sm-7">
+                            <select type="text" class="form-control" name="pid" id="pid">
+                                {% for project in projects %}
+                                    <option value="{{ project.id }}">{{ project.name }}</option>
+                                {% endfor %}
+                                <option value="0">不属于任何项目</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {% verbatim %}
+                    <div class="form-group">
+                        <label for="name" class="col-sm-2 control-label">任务名称</label>
+
+                        <div class="col-sm-7">
+                            <input type="text" class="form-control" name="name" placeholder="如：开发XXX模块、写个XXX脚本等">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="description" class="col-sm-2 control-label">任务描述</label>
+
+                        <div class="col-sm-7">
+                            <textarea class="form-control" name="description" placeholder="任务说明" rows="2"></textarea>
+                        </div>
+                    </div>
+
+
+                    {% endverbatim %}
+
+                    <div class="form-group">
+                        <label for="plan_mandays" class="col-sm-2 control-label">计划人天</label>
+
+                        <div class="col-sm-2">
+                            <input type="text" class="form-control" name="plan_mandays" value="1">
+                        </div>
+                        <label for="deadline" class="col-sm-2 control-label">最迟完成</label>
+
+                        <div class="col-sm-3">
+                            <div class="input-group date">
+                                <input type="text" class="form-control" name="deadline" value="{{ deadline }}">
+                                <span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>成员信息</legend>
+                    {% verbatim %}
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">分配给</label>
+
+                        <div class="col-sm-7">
+                            <input type="hidden" name="leader_id" value="{{ leader.uid }}">
+                            <input type="text" class="form-control" ng-model="leader.username"
+                                   style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                                   placeholder="输入三个字母开始检索"
+                                   ng-style="OperatorBackImage"
+                                   ng-change="SearchUsers('showAvailableLeaders','showLeaderProgressBar', leader.username)">
+
+                            <div class="" ng-show="showAvailableLeaders">
+                                <ul class="list-group">
+                                    <li class="list-group-item" ng-repeat="user in availableUsers">
+                                        <a href="#"
+                                           ng-click="SelectUser(user,'showAvailableLeaders','leader','OperatorBackImage',0)"><img
+                                                ng-src="{{ user.avatar }}" width="30px"/>{{ user.username }} {{
+                                            user.email }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+       <span class="col-sm-1 progress progress-striped active" style="padding: 0;margin-top: 5px;"
+             ng-show="showLeaderProgressBar">
+          <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+               aria-valuemax="100" style="width: 100%;">查询中...
+          </div>
+	   </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="members" class="col-sm-2 control-label">参加成员</label>
+
+                        <div class="col-sm-7">
+                            <input type="text" id="member_keyword" class="form-control" ng-model="member_keyword"
+                                   ng-change="SearchUsers('showAvailableMemberDiv','showMembersProgressBar',member_keyword)"
+                                   placeholder="输入三个字母开始检索"/>
+
+                            <div class="" ng-show="showAvailableMemberDiv">
+                                <ul class="list-group">
+                                    <li class="list-group-item" ng-repeat="user in availableUsers">
+                                        <a href="#"
+                                           ng-click="SelectMultiUsers(user,'members','showAvailableMemberDiv','member_keyword',100)"><img
+                                                ng-src="{{ user.avatar }}" width="30px"/>{{ user.username }} {{
+                                            user.email }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div>
+                                <div ng-repeat="member in members" class="col-sm-4 pull-left">
+                                    <input type="hidden" name="members" value="{{ member.uid }}">
+                                    <img ng-src="{{ member.avatar }}" width="20px"/>
+                                    <span class="label label-success">{{ member.username }}</span>
+                                    <span class="close" ng-click="RemoveMultiUsers(member,'members')">&times;</span>
+                                </div>
+                            </div>
+                        </div>
+       <span class="col-sm-1 progress progress-striped active" style="padding: 0;margin-top: 5px;"
+             ng-show="showMembersProgressBar">
+          <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+               aria-valuemax="100" style="width: 100%;">查询中...
+          </div>
+	   </span>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-7">
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="need_review" ng-model="task_need_review">
+                                    此任务需要复核（如勾选，复核通过才算结束）
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" id="reviewer_div" ng-show="task_need_review">
+                        <label class="col-sm-2 control-label">复核人(*)</label>
+
+                        <div class="col-sm-7">
+                            <input type="hidden" name="reviewer_id" value="{{ reviewer.uid }}">
+                            <input type="text" class="form-control" ng-model="reviewer.username"
+                                   style="text-align:left; padding-left:35px;  background-size: 35px; background-repeat: no-repeat;"
+                                   ng-style="ReviewerBackImage"
+                                   ng-change="SearchUsers('showAvailableReviewers','showReviewerProgressBar',reviewer.username)">
+
+                            <div ng-show="showAvailableReviewers">
+                                <ul class="list-group">
+                                    <li class="list-group-item" ng-repeat="user in availableUsers">
+                                        <a href="#"
+                                           ng-click="SelectUser(user,'showAvailableReviewers','reviewer','ReviewerBackImage',0)"><img
+                                                ng-src="{{ user.avatar }}" width="30px"/>{{ user.username }} {{
+                                            user.email }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+       <span class="col-sm-1 progress progress-striped active" style="padding: 0;margin-top: 5px;"
+             ng-show="showReviewerProgressBar">
+          <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+               aria-valuemax="100" style="width: 100%;">查询中...
+          </div>
+	   </span>
+                    </div>
+                    {% endverbatim %}
+                </fieldset>
+
+
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-4">
+                        <button type="submit" class="btn btn-primary">提 交</button>
+                    </div>
+                </div>
+
+            </form>
+
+        </div>
+        <div class="col-sm-3">
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script src="/static/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+    <script src="/static/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js" charset="UTF-8"></script>
+    <script type="text/javascript">
+        $('.input-group.date').datepicker({
+            format: "yyyy-mm-dd",
+            autoclose: true,
+            todayHighlight: true
+        });
+        var app = angular.module("ngTCreate", []);
+        app.controller("ngTCreateController", function ($scope, $http) {
+            $scope.show_query_progress = false;
+            $scope.members = [];
+            $scope.reviewer = {
+                'uid':{{ current_user.id }},
+                'username': '{{ current_user.username }}',
+                'avatar': '{{ current_user.display_avatar_link }}'
+            };
+            $scope.ReviewerBackImage = {"background-image": "url(" + $scope.reviewer.avatar + ")"};
+            $scope.SearchUsers = function (showUsers, showProcess, keyword) {
+                if (keyword.length < 3) return;
+                $scope[showProcess] = true;
+                var url = "/searchusers?s=" + keyword;
+                $http.get(url).success(function (response) {
+                    $scope[showUsers] = true;
+                    $scope.availableUsers = response;
+                    $scope[showProcess] = false;
+                });
+            };
+            $scope.SelectUser = function (user, showDiv, role, backImage, offsetY) {
+                $scope[role] = user;
+                $scope[backImage] = {"background-image": "url(" + user.avatar + ")"};
+                $scope[showDiv] = false;
+                $('html,body').animate({scrollTop: offsetY}, "slow");
+            };
+
+
+            $scope.Contains = function (users, user) {
+                for (x in users) {
+                    if (users[x].uid == user.uid) return true;
+                }
+                return false;
+            };
+            $scope.SelectMultiUsers = function (user, group, showDiv, searchInput, offsetY) {
+                if (!$scope.Contains($scope[group], user))  $scope[group].push(user);
+                $scope[showDiv] = false;
+                $scope[searchInput] = "";
+                $('html,body').animate({scrollTop: offsetY}, "slow");
+            };
+            $scope.RemoveMultiUsers = function (user, group) {
+                $scope[group] = $scope[group].filter(function (obj) {
+                    return obj.uid != user.uid;
+                });
+            };
+        });
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% block title %}任务清单{% endblock %}
+{% block body %}
+    <div>
+
+        <div class="row" style="padding-top: 10px;">
+            <div class="col-sm-6">
+                <form class="form-horizontal" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="sr-only">团队</label>
+
+                        <div class="col-sm-12">
+                            <select class="form-control" name="team_id" onchange="javascript:this.form.submit();">
+                                {% for team in teams %}
+                                    <option value="{{ team.id }}"
+                                            {% ifequal team default_team %}selected{% endifequal %}>{{ team.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        {% csrf_token %}
+                    </div>
+                </form>
+                {% if project %}
+                    <div style="padding-bottom: 15px;">
+                        <h2>
+                            项目【{{ project.name }}】的任务
+                        </h2>
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="panel col-sm-3">
+                <div>
+                    <h4>待我处理的任务</h4>
+                    {% for task in handler_tasks %}
+                        <div class="list-group-item taskblock">
+                            <div>
+                                <h5><a href="#" onclick="ShowTaskInfo({{ task.id }},'ToHandleProgressBar{{ task.id }}')">{{ task.name }}</a></h5>
+                            </div>
+                            <div>
+                                <a href="/user/{{ task.leader.id }}" target="_blank">
+                                    <img src="{{ task.leader.display_avatar_link }}" style="width: 25px"
+                                         title="{{ task.leader.username }} {{ task.leader.email }}"/>
+                                </a>
+                                <a href="/user/{{ task.reviewer.id }}" target="_blank">
+                                    <img src="{{ task.reviewer.display_avatar_link }}" style="width: 25px"
+                                         title="{{ task.reviewer.username }} {{ task.reviewer.email }}"/>
+                                </a>
+                                {% for member in task.members.all %}
+                                    <a href="/user/{{ member.id }}" target="_blank">
+                                        <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                             title="{{ member.username }} {{ member.email }}"/>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                            {% if task.deadline %}
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div style="background-color: #f59e00; border-radius: 5px;color: #EEEEEE;margin-top: 5px;margin-bottom: 2px;">
+                                            <span class="glyphicon glyphicon-time small" title="最迟完成日期">{{ task.deadline | date:"m-d" }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div>
+                                {% if task.project %}
+                                    <a href="/projectlist/{{ task.project.id }}" target="_blank">{{ task.project }}</a>
+                                {% endif %}
+                            </div>
+                            <div class="progress progress-striped active" style="visibility: hidden;display: none;margin-top: 8px;margin-bottom: 0;"
+                             id="ToHandleProgressBar{{ task.id }}">
+                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                                   aria-valuemax="100" style="width: 100%;">正在加载...
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="panel panel-footer">
+                        <a href="/tcreate"><span class="glyphicon glyphicon-plus-sign"></span> 新建任务</a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4>项目中将要分配给我的任务</h4>
+                    {% for task in future_tasks %}
+                        <div class="list-group-item taskblock">
+                            <div>
+                                <h5><a href="#" onclick="ShowTaskInfo({{ task.id }},'WillDoProgressBar{{ task.id }}')">{{ task.name }}</a></h5>
+                            </div>
+                            <div>
+                                <a href="/user/{{ task.leader.id }}" target="_blank">
+                                    <img src="{{ task.leader.display_avatar_link }}" style="width: 25px"
+                                         title="{{ task.leader.username }} {{ task.leader.email }}"/>
+                                </a>
+                                <a href="/user/{{ task.reviewer.id }}" target="_blank">
+                                    <img src="{{ task.reviewer.display_avatar_link }}" style="width: 25px"
+                                         title="{{ task.reviewer.username }} {{ task.reviewer.email }}"/>
+                                </a>
+                                {% for member in task.members.all %}
+                                    <a href="/user/{{ member.id }}" target="_blank">
+                                        <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                             title="{{ member.username }} {{ member.email }}"/>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                            <div>
+                                {% if task.project %}
+                                    <a href="/projectlist/{{ task.project.id }}" target="_blank">{{ task.project }}</a>
+                                {% endif %}
+                            </div>
+                            <div class="progress progress-striped active" style="visibility: hidden;display: none;margin-top: 8px;margin-bottom: 0;"
+                             id="WillDoProgressBar{{ task.id }}">
+                                <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                                   aria-valuemax="100" style="width: 100%;">正在加载...
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    <div class="panel panel-footer">
+                        <a href="/tcreate"><span class="glyphicon glyphicon-plus-sign"></span> 新建任务</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="panel col-sm-3">
+                <h4>待执行的任务</h4>
+                {% for task in todo_tasks %}
+                    <div class="list-group-item taskblock">
+                        <div>
+                            <h5><a href="#" onclick="ShowTaskInfo({{ task.id }},'ToDoProgressBar{{ task.id }}')">{{ task.name }}</a></h5>
+                        </div>
+                        <div>
+                            <a href="/user/{{ task.leader.id }}" target="_blank">
+                                <img src="{{ task.leader.display_avatar_link }}" style="width: 25px"
+                                     title="{{ task.leader.username }} {{ task.leader.email }}"/>
+                            </a>
+                            <a href="/user/{{ task.reviewer.id }}" target="_blank">
+                                <img src="{{ task.reviewer.display_avatar_link }}" style="width: 25px"
+                                     title="{{ task.reviewer.username }} {{ task.reviewer.email }}"/>
+                            </a>
+                            {% for member in task.members.all %}
+                                <a href="/user/{{ member.id }}" target="_blank">
+                                    <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                         title="{{ member.username }} {{ member.email }}"/>
+                                </a>
+                            {% endfor %}
+                        </div>
+                        {% if task.deadline %}
+                            <div class="row">
+                                    <div class="col-sm-4">
+                                        <div style="background-color: #f59e00; border-radius: 5px;color: #EEEEEE;margin-top: 5px;margin-bottom: 2px;">
+                                            <span class="glyphicon glyphicon-time small" title="最迟完成日期">{{ task.deadline | date:"m-d" }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                        {% endif %}
+                        <div>
+                            {% if task.project %}
+                                <a href="/projectlist/{{ task.project.id }}" target="_blank">{{ task.project }}</a>
+                            {% endif %}
+                        </div>
+                        <div class="progress progress-striped active" style="visibility: hidden;display: none;margin-top: 8px;margin-bottom: 0;"
+                         id="ToDoProgressBar{{ task.id }}">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                               aria-valuemax="100" style="width: 100%;">正在加载...
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="panel panel-footer">
+                    <a href="/tcreate"><span class="glyphicon glyphicon-plus-sign"></span> 新建任务</a>
+                </div>
+            </div>
+
+            <div class="panel col-sm-3">
+                <h4>进行中的任务</h4>
+                {% for task in process_tasks %}
+                    <div class="list-group-item taskblock">
+                        <div>
+                            <h5><a href="#" onclick="ShowTaskInfo({{ task.id }},'ProcessingProgressBar{{ task.id }}')">{{ task.name }}</a></h5>
+                        </div>
+                        <div>
+                            <a href="/user/{{ task.leader.id }}" target="_blank">
+                                <img src="{{ task.leader.display_avatar_link }}" style="width: 25px"
+                                     title="{{ task.leader.username }} {{ task.leader.email }}"/>
+                            </a>
+                            <a href="/user/{{ task.reviewer.id }}" target="_blank">
+                                <img src="{{ task.reviewer.display_avatar_link }}" style="width: 25px"
+                                     title="{{ task.reviewer.username }} {{ task.reviewer.email }}"/>
+                            </a>
+                            {% for member in task.members.all %}
+                                <a href="/user/{{ member.id }}" target="_blank">
+                                    <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                         title="{{ member.username }} {{ member.email }}"/>
+                                </a>
+                            {% endfor %}
+                        </div>
+                        {% if task.deadline %}
+                            <div class="row">
+                                    <div class="col-sm-4">
+                                        <div style="background-color: #f59e00; border-radius: 5px;color: #EEEEEE;margin-top: 5px;margin-bottom: 2px;">
+                                            <span class="glyphicon glyphicon-time small" title="最迟完成日期">{{ task.deadline | date:"m-d" }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                        {% endif %}
+                        <div>
+                            {% if task.project %}
+                                <a href="/projectlist/{{ task.project.id }}" target="_blank">{{ task.project }}</a>
+                            {% endif %}
+                        </div>
+                        <div class="progress progress-striped active" style="visibility: hidden;display: none;margin-top: 8px;margin-bottom: 0;"
+                         id="ProcessingProgressBar{{ task.id }}">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                               aria-valuemax="100" style="width: 100%;">正在加载...
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="panel panel-footer">
+                    <a href="/tcreate"><span class="glyphicon glyphicon-plus-sign"></span> 新建任务</a>
+                </div>
+            </div>
+
+            <div class="panel col-sm-3">
+                <h4>已完成的任务(30天)</h4>
+                {% for task in done_tasks %}
+                    <div class="list-group-item taskblock">
+                        <div>
+                            <h5><a href="#" onclick="ShowTaskInfo({{ task.id }},'DoneProgressBar{{ task.id }}')">{{ task.name }}</a></h5>
+                        </div>
+                        <div>
+                            <a href="/user/{{ task.leader.id }}" target="_blank">
+                                <img src="{{ task.leader.display_avatar_link }}" style="width: 25px"
+                                     title="{{ task.leader.username }} {{ task.leader.email }}"/>
+                            </a>
+                            <a href="/user/{{ task.reviewer.id }}" target="_blank">
+                                <img src="{{ task.reviewer.display_avatar_link }}" style="width: 25px"
+                                     title="{{ task.reviewer.username }} {{ task.reviewer.email }}"/>
+                            </a>
+                            {% for member in task.members.all %}
+                                <a href="/user/{{ member.id }}" target="_blank">
+                                    <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                         title="{{ member.username }} {{ member.email }}"/>
+                                </a>
+                            {% endfor %}
+                        </div>
+                        <div>
+                            {% if task.project %}
+                                <a href="/projectlist/{{ task.project.id }}" target="_blank">{{ task.project }}</a>
+                            {% endif %}
+                        </div>
+                        <div class="progress progress-striped active" style="visibility: hidden;display: none;margin-top: 8px;margin-bottom: 0;"
+                         id="DoneProgressBar{{ task.id }}">
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                               aria-valuemax="100" style="width: 100%;">正在加载...
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="panel panel-footer">
+                    <a href="/tcreate"><span class="glyphicon glyphicon-plus-sign"></span> 新建任务</a>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="TaskModal" class="modal fade" role="dialog" aria-labelledby="TaskName" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        任务详情
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    </div>
+                    <div class="modal-body" id="TaskInfo" style="overflow-y: auto;">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        d3.select("#TaskTab").attr("class", "active");
+        function ShowTaskInfo(tid, progress_bar) {
+            d3.select("#"+progress_bar).style("display","block").style("visibility","visible");
+            $("#TaskInfo").load("/task/" + tid, function(){
+                d3.select("#"+progress_bar).style("display","none").style("visibility","hidden");
+                $("#TaskModal").modal();
+            });
+        }
+        {% if current_task %}
+            $("#TaskInfo").load("/task/{{ current_task.id }}", function(){
+                $("#TaskModal").modal();
+            });
+        {% endif %}
+
+    </script>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}建议{% endblock %}
+{% block body %}
+<div class="row">
+    <div class="col-sm-9">
+        <form class="form-horizontal" method="POST" action="#" enctype="multipart/form-data" role="form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="msg" class="control-label">
+                    您的宝贵意见（300字以内）:
+                    <a href="/user/{{ receiver.id }}" target="_blank">
+                        <img src="{{ receiver.display_avatar_link }}" width="25px" height="25px" style="border-radius: 5px;" />@{{ receiver }}
+                    </a>
+                </label>
+                <textarea class="form-control" name="msg" rows="8"></textarea>
+                <input type="submit" value="提交">
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    d3.select("#GuideTab").attr("class", "active");
+</script>
+{% endblock %}

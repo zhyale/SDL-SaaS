@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}{{ team.name }}-团队资料{% endblock %}
+{% block body %}
+<div class="well well-sm" style="margin-top: 10px;">
+团队管理：
+<ul>
+    <li>团队管理员可以有多人；</li>
+    <li>如果员工离职或离开团队，从相应的团队中移除即可；</li>
+    <li>添加成员时，如果邮箱未在本系统中注册，将自动创建账号并邮件通知，初始口令为 Flzx3000c （助记词:飞流直下三千尺）；</li>
+    <li>仅当团队名下项目数为0且只剩下管理员自己时才可以删除团队，删除时会同时删除此团队名下的所有任务。</li>
+</ul>
+</div>
+
+<div>
+{% if team %}
+    <div>
+        <h2>【{{ team.abbr }}】{{ team.name }}</h2>
+    </div>
+
+    <div class="row">
+        <div class="panel col-sm-3">
+            <h4>管理员</h4>
+            <ul class="list-group">
+                <form id="AdminForm" name="AdminForm" method="POST" action="/teamchange">
+                {% csrf_token %}
+                <input type="hidden" name="tid" value="{{ team.id }}">
+                <input type="hidden" name="do">
+                <input type="hidden" name="uid">
+                {% for admin in team.admins.all %}
+                    <li class="list-group-item">
+                        <div class="row">
+                            <div class="col-sm-8">
+                                <a href="/user/{{ admin.id }}" target="_blank" title="{{ admin.email }}"><img src="{{ admin.display_avatar_link }}" width="25px" />{{ admin.username }}</a><br/>
+                            </div>
+                            <div class="col-sm-4">
+                                {% if current_user in team.admins.all %}
+                                    <button type="submit" value="移除" onclick="AdminForm.uid.value={{ admin.id }};AdminForm.do.value='removeadmin';" class="btn btn-link">
+                                    <span class="close" title="移除">&times;</span>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </li>
+            {% endfor %}
+            </form>
+            </ul>
+
+        </div>
+        <div class="panel col-sm-4">
+            <h4>成员</h4>
+            <ul class="list-group">
+            {% with team.members.all as team_members_all %}
+            {% with team.admins.all as team_admins_all %}
+            <form id="MemberForm" name="MemberForm" method="POST" action="/teamchange">
+                {% csrf_token %}
+                <input type="hidden" name="tid" value="{{ team.id }}">
+                <input type="hidden" name="do">
+                <input type="hidden" name="uid">
+                {% for member in team_members_all %}
+
+                <li class="list-group-item">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <a href="/user/{{ member.id }}"  target="_blank" title="{{ member.email }}"><img src="{{ member.display_avatar_link }}" width="25px" />{{ member.username }}</a>
+                        </div>
+                        <div class="col-sm-4">
+                            {% if current_user in team_admins_all and member not in team_admins_all %}
+                            <button type="submit" onclick="RemoveMember({{ member.id }})" class="btn btn-link">
+                                <span class="close" title="移除">&times;</span>
+                            </button>
+                            <button type="submit" onclick="AddAdmin({{ member.id }})" class="btn btn-link">
+                            <span class="glyphicon glyphicon-user" style="color: rgb(118, 140, 223);" title="加为管理员"></span>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+                </form>
+                {% if current_user in team_members_all %}
+                <li  class="list-group-item">
+                    <div>
+                        <form method="POST" action="/teamchange" id="addMemberForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="do" value="addmember">
+                        <input type="hidden" name="tid" value="{{ team.id }}">
+                        <div class="input-group col-sm-12">
+                            <input id="username" name="username" class="form-control" placeholder="Email用户名" oninput="FillEmailInfo('{{ team.company }}')">
+                            <span class="input-group-btn">
+                            <button type="button" class="btn btn-default" disabled>@{{ team.company }}</button>
+                            <button type="submit" class="btn btn-default">添加</button>
+                            </span>
+                        </div>
+                        </form>
+                    </div>
+                </li>
+                {% endif %}
+            {% endwith %}
+            {% endwith %}
+            </ul>
+
+        </div>
+    </div>
+    {% if team_can_be_deleted %}
+    <div>
+        <form action="/teamchange" method="POST">
+            <input type="hidden" name="do" value="del">
+            <input type="hidden" name="tid" value="{{ team.id }}">
+            {% csrf_token %}
+            <button type="submit" onclick="return confirm('确认删除该团队？删除后将不可恢复。')">删除此团队</button>
+        </form>
+    </div>
+    {% endif %}
+{% else %}
+    未找到对应的团队信息。
+{% endif %}
+
+    <div>
+        <br/>
+        <a href="/team">返回我的团队</a>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+function RemoveMember(_uid){
+    document.MemberForm.do.value='removemember';
+    document.MemberForm.uid.value=_uid;
+    return true;
+}
+function AddAdmin(_uid){
+    document.MemberForm.do.value='addadmin';
+    document.MemberForm.uid.value=_uid;
+    return true;
+}
+function FillEmailInfo(company){
+    var username=document.getElementById("username").value;
+    document.getElementById("EmailInfo").innerText="【该成员将使用："+username+"@"+company +" 登录及接收通知，请确保该邮件地址真实存在！】";
+}
+</script>
+{% endblock %}

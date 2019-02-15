@@ -1,0 +1,110 @@
+# coding=utf-8
+from django.conf.urls import patterns, include, url
+from django.contrib import admin
+from pmp.settings import DEBUG, STATIC_ROOT, MEDIA_ROOT
+import django.views.static
+import pmp.views
+import usermgmt.views
+import projectmgmt.views
+import taskmgmt.views
+import flowmgmt.views
+import msgmgmt.views
+import wikimgmt.views
+import pagemgmt.views
+import ecomgmt.views
+import toolmgmt.views
+import remindmgmt.views
+import itsm.urls
+import pwdmgmt.urls
+import toolmgmt.urls
+import remindmgmt.urls
+
+urlpatterns = [
+    # General
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^$', pmp.views.show_frontpage),
+    url(r'^sitemap.xml$', pmp.views.show_site_map),
+    url(r'^robots.txt$', pmp.views.show_robots),
+    url(r'^cache$', pmp.views.cache_management),
+    url(r'^term$', pmp.views.show_term),
+    url(r'^faq$', pmp.views.show_faq),
+    url(r'^debug$', pmp.views.debug),
+    url(r'^aboutus', pmp.views.aboutus),
+    # user
+    url(r'^signup$', usermgmt.views.Register),
+    url(r'^searchusers$', usermgmt.views.SearchUsers),
+    url(r'^searchuser$', usermgmt.views.SearchUser),
+    url(r'^login$', usermgmt.views.sso_login),
+    url(r'^logout$', usermgmt.views.Logout),
+    url(r'^user/(\d+)$', usermgmt.views.UserInfo),
+    url(r'^useredit$', usermgmt.views.UserEdit),
+    url(r'^lostpwd$', usermgmt.views.UserLostPassword),
+    url(r'^changeteam$', usermgmt.views.ChangeDefaultTeam),
+    url(r'^changecorp$', usermgmt.views.change_corporation),
+    url(r'auth$', usermgmt.views.get_user_by_ticket),
+    # Team
+    url(r'^team$', usermgmt.views.TeamList),
+    url(r'^team/(\d+)$', usermgmt.views.TeamInfo),
+    url(r'^teamcreate$', usermgmt.views.TeamCreate),
+    url(r'^teamchange$', usermgmt.views.TeamChange),
+    # Project
+    url(r'^projectlist/(\d+)?$', projectmgmt.views.show_project_list),
+    url(r'^project/(\d+)$', projectmgmt.views.ProjectInfo),
+    url(r'^pcreate$', projectmgmt.views.ProjectCreate),
+    url(r'^pedit/(\d+)$', projectmgmt.views.ProjectEdit),
+    url(r'^pflow$', projectmgmt.views.project_approval_view),
+    url(r'^projectdel$', projectmgmt.views.ProjectDelete),
+    # Task
+    url(r'^tasklist/(\d+)?$', taskmgmt.views.TaskList),
+    url(r'^task/(\d+)$', taskmgmt.views.TaskInfo),
+    url(r'^tflow$', taskmgmt.views.task_approval_view),
+    url(r'^tlist_p/(\d+)$', taskmgmt.views.TaskListForProject),
+    url(r'^tcreate$', taskmgmt.views.TaskCreate),
+    url(r'^tedit/(\d+)$', taskmgmt.views.TaskEdit),
+    url(r'^addmember$', taskmgmt.views.task_add_member),
+    url(r'^taskdel$', taskmgmt.views.TaskDelete),
+    url(r'^checkresult$', taskmgmt.views.check_result),
+    url(r'^customcheckresult$', taskmgmt.views.custom_check_result),
+    url(r'^specifications$', taskmgmt.views.show_checklist_as_specifications),
+    url(r'^kcp$', taskmgmt.views.show_kcp_for_project),
+    # Flow
+    url(r'^initsystem$', flowmgmt.views.init_system),
+    url(r'^projectflow/(\d+)$', flowmgmt.views.ProjectFlowInfo),
+    url(r'^flowlist$', flowmgmt.views.show_flow_list),
+    url(r'^flowlist/(project|task)/(\d+)$', flowmgmt.views.show_flow_list_and_flow),
+    url(r'^flowdel$', flowmgmt.views.FlowDelete),
+    url(r'^taskflow/(\d+)$', flowmgmt.views.TaskFlowInfo),
+    # Message
+    url(r'^msglist$', msgmgmt.views.MessageList),
+    url(r'^msgdelete$', msgmgmt.views.MessageDelete),
+    url(r'^suggest$', msgmgmt.views.Suggest),
+    url(r'^circle$', msgmgmt.views.Circle),
+    url(r'^circledelete$', msgmgmt.views.CircleDelete),
+    # Wiki
+    url(r'^termwiki/(\w+)$', wikimgmt.views.show_wiki_by_abbr),
+    url(r'^wiki$', wikimgmt.views.show_wikis_by_keyword),
+    url(r'^wikiadd$', wikimgmt.views.create_wiki),
+    # Page
+    url(r'^content/([\w\d-]+)$', pagemgmt.views.show_page),
+    # Eco
+    url(r'^catalog$', ecomgmt.views.show_all_catalog),
+    url(r'^catalog/([\w\d-]+)$', ecomgmt.views.show_catalog),
+    # ITSM
+    url(r'^itsm/', include(itsm.urls)),
+    # Password
+    url(r'^password/', include(pwdmgmt.urls)),
+    # Tool (IP)
+    url(r'^tools$', toolmgmt.views.show_tools),
+    url(r'^tool/', include(toolmgmt.urls)),
+    # Remind
+    url(r'^reminds$', remindmgmt.views.show_reminds),
+    url(r'^remind/', include(remindmgmt.urls)),
+]
+
+if DEBUG:
+    urlpatterns += [
+        url(r'^static/(?P<path>.*)$', django.views.static.serve,
+            {'document_root': STATIC_ROOT}),
+        url(r'^media/(?P<path>.*)$', django.views.static.serve,
+            {'document_root': MEDIA_ROOT}),
+    ]

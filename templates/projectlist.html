@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% block title %}项目列表{% endblock %}
+{% block body %}
+
+    <div class="row" style="padding-top: 10px;">
+        <div class="col-sm-12">
+            <form class="form-horizontal" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="sr-only">团队</label>
+
+                    <div class="col-sm-6">
+                        <select class="form-control" name="team_id" onchange="javascript:this.form.submit();"
+                                title="切换团队">
+                            {% for team in teams %}
+                                <option value="{{ team.id }}"
+                                        {% ifequal team default_team %}selected{% endifequal %}>{{ team.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% csrf_token %}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="panel col-sm-3">
+            <h4>待我处理/审批的项目</h4>
+            {% for project in handler_projects %}
+                <div class="list-group-item projectblock">
+                    <div>
+                        <h5><a href="#" onclick="ShowProjectInfo({{ project.id }},'ToDoProgressBar{{ project.id }}')">{{ project.name }}</a></h5>
+                    </div>
+                    <div>
+                        <a href="/user/{{ project.manager.id }}" target="_blank">
+                            <img src="{{ project.manager.display_avatar_link }}" style="width: 25px" title="{{ project.manager.username }} {{ project.manager.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.architect.id }}" target="_blank">
+                            <img src="{{ project.architect.display_avatar_link }}" style="width: 25px" title="{{ project.architect.username }} {{ project.architect.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.dev_rep.id }}" target="_blank">
+                            <img src="{{ project.dev_rep.display_avatar_link }}" style="width: 25px" title="{{ project.dev_rep.username }} {{ project.dev_rep.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.test_rep.id }}" target="_blank">
+                            <img src="{{ project.test_rep.display_avatar_link }}" style="width: 25px" title="{{ project.test_rep.username }} {{ project.test_rep.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.op_rep.id }}" target="_blank">
+                            <img src="{{ project.op_rep.display_avatar_link }}" style="width: 25px" title="{{ project.op_rep.username }} {{ project.op_rep.email }}"/>
+                        </a>
+                        {% for member in project.members.all %}
+                            <a href="/user/{{ member.id }}" target="_blank">
+                                <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                     title="{{ member.username }} {{ member.email }}"/>
+                            </a>
+                        {% endfor %}
+                    </div>
+                    <div class="progress progress-striped active" style="visibility: hidden;display: none;margin-top: 8px;margin-bottom: 0;"
+                     id="ToDoProgressBar{{ project.id }}">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                           aria-valuemax="100" style="width: 100%;">正在加载...
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="panel panel-footer">
+                <a href="/pcreate"><span class="glyphicon glyphicon-plus-sign"></span> 新建项目</a>
+            </div>
+        </div>
+
+        <div class="panel col-sm-3">
+            <h4>规划中/待启动的项目</h4>
+            {% for project in todo_projects %}
+                <div class="list-group-item projectblock">
+                    <div>
+                        <h5><a href="#" onclick="ShowProjectInfo({{ project.id }},'InPlanProgressBar{{ project.id }}')">{{ project.name }}</a></h5>
+                    </div>
+                    <div>
+                        <a href="/user/{{ project.manager.id }}" target="_blank">
+                            <img src="{{ project.manager.display_avatar_link }}" style="width: 25px"
+                                 title="{{ project.manager.username }} {{ project.manager.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.architect.id }}" target="_blank">
+                            <img src="{{ project.architect.display_avatar_link }}" style="width: 25px" title="{{ project.architect.username }} {{ project.architect.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.dev_rep.id }}" target="_blank">
+                            <img src="{{ project.dev_rep.display_avatar_link }}" style="width: 25px" title="{{ project.dev_rep.username }} {{ project.dev_rep.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.test_rep.id }}" target="_blank">
+                            <img src="{{ project.test_rep.display_avatar_link }}" style="width: 25px" title="{{ project.test_rep.username }} {{ project.test_rep.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.op_rep.id }}" target="_blank">
+                            <img src="{{ project.op_rep.display_avatar_link }}" style="width: 25px" title="{{ project.op_rep.username }} {{ project.op_rep.email }}"/>
+                        </a>
+                        {% for member in project.members.all %}
+                            <a href="/user/{{ member.id }}" target="_blank">
+                                <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                     title="{{ member.username }} {{ member.email }}"/>
+                            </a>
+                        {% endfor %}
+                    </div>
+                    <div class="progress progress-striped active" style="visibility: hidden;display: none;margin-top: 8px;margin-bottom: 0;"
+                     id="InPlanProgressBar{{ project.id }}">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                           aria-valuemax="100" style="width: 100%;">正在加载...
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="panel panel-footer">
+                <a href="/pcreate"><span class="glyphicon glyphicon-plus-sign"></span> 新建项目</a>
+            </div>
+        </div>
+
+        <div class="panel col-sm-3">
+            <h4>进行中的项目</h4>
+            {% for project in process_projects %}
+                <div class="list-group-item projectblock">
+                    <div>
+                        <h5><a href="#" onclick="ShowProjectInfo({{ project.id }},'InProcessProgressBar{{ project.id }}')">{{ project.name }}</a></h5>
+                    </div>
+                    <div>
+                        <a href="/user/{{ project.manager.id }}" target="_blank">
+                            <img src="{{ project.manager.display_avatar_link }}" style="width: 25px"
+                                 title="{{ project.manager.username }} {{ project.manager.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.architect.id }}" target="_blank">
+                            <img src="{{ project.architect.display_avatar_link }}" style="width: 25px" title="{{ project.architect.username }} {{ project.architect.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.dev_rep.id }}" target="_blank">
+                            <img src="{{ project.dev_rep.display_avatar_link }}" style="width: 25px" title="{{ project.dev_rep.username }} {{ project.dev_rep.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.test_rep.id }}" target="_blank">
+                            <img src="{{ project.test_rep.display_avatar_link }}" style="width: 25px" title="{{ project.test_rep.username }} {{ project.test_rep.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.op_rep.id }}" target="_blank">
+                            <img src="{{ project.op_rep.display_avatar_link }}" style="width: 25px" title="{{ project.op_rep.username }} {{ project.op_rep.email }}"/>
+                        </a>
+                        {% for member in project.members.all %}
+                            <a href="/user/{{ member.id }}" target="_blank">
+                                <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                     title="{{ member.username }} {{ member.email }}"/>
+                            </a>
+                        {% endfor %}
+                    </div>
+                    <div class="progress progress-striped active" style="visibility: hidden;display: none;margin-top: 8px;margin-bottom: 0;"
+                     id="InProcessProgressBar{{ project.id }}">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                           aria-valuemax="100" style="width: 100%;">正在加载...
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="panel panel-footer">
+                <a href="/pcreate"><span class="glyphicon glyphicon-plus-sign"></span> 新建项目</a>
+            </div>
+        </div>
+
+        <div class="panel col-sm-3">
+            <h4>已完成的项目(1年内)</h4>
+            {% for project in done_projects %}
+                <div class="list-group-item projectblock">
+                    <div>
+                        <h5><a href="#" onclick="ShowProjectInfo({{ project.id }},'CloseProgressBar{{ project.id }}')">{{ project.name }}</a></h5>
+                    </div>
+                    <div>
+                        <a href="/user/{{ project.manager.id }}" target="_blank">
+                            <img src="{{ project.manager.display_avatar_link }}" style="width: 25px"
+                                 title="{{ project.manager.username }} {{ project.manager.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.architect.id }}" target="_blank">
+                            <img src="{{ project.architect.display_avatar_link }}" style="width: 25px" title="{{ project.architect.username }} {{ project.architect.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.dev_rep.id }}" target="_blank">
+                            <img src="{{ project.dev_rep.display_avatar_link }}" style="width: 25px" title="{{ project.dev_rep.username }} {{ project.dev_rep.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.test_rep.id }}" target="_blank">
+                            <img src="{{ project.test_rep.display_avatar_link }}" style="width: 25px" title="{{ project.test_rep.username }} {{ project.test_rep.email }}"/>
+                        </a>
+                        <a href="/user/{{ project.op_rep.id }}" target="_blank">
+                            <img src="{{ project.op_rep.display_avatar_link }}" style="width: 25px" title="{{ project.op_rep.username }} {{ project.op_rep.email }}"/>
+                        </a>
+                        {% for member in project.members.all %}
+                            <a href="/user/{{ member.id }}" target="_blank">
+                                <img src="{{ member.display_avatar_link }}" style="width: 25px"
+                                     title="{{ member.username }} {{ member.email }}"/>
+                            </a>
+                        {% endfor %}
+                    </div>
+                    <div class="progress progress-striped active" style="visibility: hidden;display: none;margin-top: 8px;margin-bottom: 0;"
+                     id="CloseProgressBar{{ project.id }}">
+                        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                           aria-valuemax="100" style="width: 100%;">正在加载...
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="panel panel-footer">
+                <a href="/pcreate"><span class="glyphicon glyphicon-plus-sign"></span> 新建项目</a>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="ProjectModal" class="modal fade" role="dialog" aria-labelledby="ProjectName" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    项目详情
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                </div>
+                <div class="modal-body" id="ProjectInfo" style="overflow-y: auto;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+        d3.select("#ProjectTab").attr("class", "active");
+        function ShowProjectInfo(tid, progress_bar) {
+            d3.select("#"+progress_bar).style("display","block").style("visibility","visible");
+            $("#ProjectInfo").load("/project/" + tid, function(){
+                d3.select("#"+progress_bar).style("display","none").style("visibility","hidden");
+                $("#ProjectModal").modal();
+            });
+        }
+        {% if current_project_id %}
+            $("#ProjectInfo").load("/project/{{ current_project_id }}", function(){
+                $("#ProjectModal").modal();
+            });
+        {% endif %}
+    </script>
+{% endblock %}
