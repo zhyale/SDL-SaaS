@@ -69,7 +69,8 @@ uwsgi.ini中的listen参数已经设为1024 （不能超过net.core.somaxconn变
 
 ### UWSGI配置
 
-检查/data/pmpenv/pmp/uwsgi.ini 的相关配置（和manage.py 在同一级目录下），内容为（如有变化，以实际发布的文件为准）：
+检查/data/pmpenv/pmp/uwsgi.ini 的相关配置（和manage.py 在同一级目录下），内容为（如有变化，以实际发布的文件为准）：  
+```
 [uwsgi]
 chdir=/data/pmpenv/pmp
 home=/data/pmpenv
@@ -85,12 +86,20 @@ vacuum=True
 listen=1024
 workers=8
 daemonize=pmp.log
+```
 其中listen不能超过net.core.somaxconn变量值。
 开机启动，在/etc/rc.d/rc.local文件中添加：
+```
 /usr/local/bin/uwsgi –ini /data/pmpenv/pmp/uwsgi.ini
+```
+
 其中uwsgi的路径请确认（whereis uwsgi）后再配置，特别是系统中存在两个uwsgi时，请使用全路径（对应pip2.7安装的uwsgi）。
-3.1.14.	NGINX安装配置
-如果是编译安装则默认路径为/usr/local/nginx/conf/nginx.conf
+
+### NGINX安装配置
+
+如果是编译安装则默认路径为`/usr/local/nginx/conf/nginx.conf`
+
+```
 user nobody;
 conf.d/default.conf配置：
 server {
@@ -111,38 +120,52 @@ server {
             proxy_read_timeout 300;
         }
 }
+```
+
 备注：pmp.sock需要确保nginx worker process（一般为nobody）和uwsgi进程可正常读写。
 
 ### MySQL配置
 
 配置文件/etc/my.cnf
 统一设置编码，需要在/etc/my.cnf的[mysqld]下加上
+```
 character_set_server=utf8
 character_set_client=utf8
+```
 加入系统服务
+```
 chkconfig --add mysqld
 chkconfig mysqld on
 service mysqld start
+```
 命令行修改密码：mysqladmin –uroot password xxxxxx 
 连接mysql之后创建数据库并设置用户及权限：
+```
 create database pmp;
 grant all privileges on pmp.* to 'pmp'@'localhost' identified by 'xxxxxxxx';
 flush privileges;
+```
 应用中使用pmp用户连接mysql。
-3.2.	应用实施
-3.2.1.	应用配置
+
+### 应用实施
+
 将服务器代码复制到服务器，目录为：/data/pmpenv/pmp 。
 修改/data/pmpenv/pmp/pmp/settings.py中的：
 数据库账号和密码，不使用root账号，以及：
+```
 DEBUG = False
 TEMPLATE_DEBUG=False
-
 ALLOWED_HOSTS = ['*']
+```
 进入/data/pmpenv/，执行
+```
 source ./bin/activate
-执行python manage.py syncdb 在过程中设置django后台管理账号。
+```
+执行`python manage.py syncdb` 在过程中设置django后台管理账号。
 检查确认/etc/rc.d/rc.local文件中已添加：
+```
 /usr/local/bin/uwsgi –ini /data/pmpenv/pmp/uwsgi.ini
+```
 重启服务器测试各项服务是否正常启动。
 首次部署，请访问http://xxx.xxx.xxx.xxx/initsystem 初始化。
 
@@ -171,34 +194,27 @@ mysql –uroot –p pmp<***.sql
 ### RSA配置
 
 python manage.py shell环境
+```
 import rsa
+```
 密钥生成：
+```
 (pubkey, privkey) = rsa.newkeys(1024)
+```
 N,E值获取：pubkey.n  pubkey.e
 以文件形式存储：
+```
 pkcs1 = pubkey.save_pkcs1()
 pubfile = open('pubkey_1024.pem','w+')
 pubfile.write(pkcs1)
 pubfile.close()
+```
 从文件读取：
+```
 with open('privkey_1024.pem') as privatefile:
     pkcs1 = privatefile.read()
 privkey = rsa.PrivateKey.load_pkcs1(pkcs1)
-
-
-### 证书配置
-
-#openssl genrsa -out saas.janusec.com.pem 2048
-#openssl req -new -sha256 -key saas.janusec.com.pem -out saas.janusec.com.csr
-检查确认：
-openssl req -text -noout -in saas.janusec.com.csr
-
-Nginx
-listen       80;
-        listen       443 ssl;
-        server_name  saas.janusec.com;
-        ssl_certificate /usr/local/ssl/saas.janusec.com.crt;
-        ssl_certificate_key  /usr/local/ssl/saas.janusec.com.pem;
+```
 
 ### 如果忘记密码
 
@@ -208,10 +224,12 @@ source ./bin/activate  进入虚拟环境
 cd pmp
 python manage.py shell
 然后获取你的用户名，并且重设密码：
+```
 from django.contrib.auth.models import User 
 user = User.objects.get(username='admin') 
 user.set_password('new_password') 
 user.save()
+```
 
 ### 小版本升级参考
 
