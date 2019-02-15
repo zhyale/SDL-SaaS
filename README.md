@@ -32,15 +32,18 @@ pip install --no-cache-dir -I pillow
 
 
 ### 服务器基本环境
+
 操作系统：CentOS6.4 + 
 Web服务器：Nginx 1.6.2
 CGI: uwsgi （在系统环境和virtualenv环境都安装）
 应用环境：Python 2.7.10 + django 1.7
 数据库：Mysql-server
 参考步骤：
+```
 #yum install mysql-server
 #chkconfig --add mysqld
-# chkconfig mysqld on
+#chkconfig mysqld on
+```
 
 特别注意：pip –V所显示的版本信息中，所使用的python必须为Python2.7 。
 
@@ -147,8 +150,10 @@ source ./bin/activate
 ### 服务监控
 
 /etc/crontab中添加：
+```
 * * * * * root /sbin/service mysqld status || service mysqld restart
 00 19 * * * root /data/backup/backupdb.sh
+```
 
 ### 备份参考
 
@@ -159,7 +164,9 @@ cd /data/backup/mysql
 rm -rf `find . -name '*.sql.gz' -mtime 7`
 ```
 恢复：
+```
 mysql –uroot –p pmp<***.sql
+```
 
 ### RSA配置
 
